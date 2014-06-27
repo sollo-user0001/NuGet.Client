@@ -1,0 +1,199 @@
+=====================
+18.08.2021 20:07:45
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 20:09:28
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 20:09:31
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 20:09:42
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 20:10:56
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 20:11:00
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 20:12:26
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 20:12:55
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 20:14:10
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 20:16:27
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
+18.08.2021 21:06:58
+LimitedFunctionality
+System.Runtime.InteropServices.COMException (0x80004005): Volání součásti COM vrátilo chybu HRESULT E_FAIL.
+   v Microsoft.VisualStudio.Shell.Interop.IVsShell7.LoadPackageAsync(Guid& guidPackage)
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.<CreateProjectContextAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   v Microsoft.VisualStudio.Threading.JoinableTask.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.Threading.JoinableTask`1.CompleteOnCurrentThread()
+   v Microsoft.VisualStudio.LanguageServices.Implementation.ProjectSystem.CPS.CPSProjectFactory.Microsoft.VisualStudio.LanguageServices.ProjectSystem.IWorkspaceProjectContextFactory.CreateProjectContext(String languageName, String projectUniqueName, String projectFilePath, Guid projectGuid, Object hierarchy, String binOutputPath, String assemblyName)
+   v Microsoft.VisualStudio.ProjectSystem.LanguageServices.WorkspaceProjectContextProvider.<CreateProjectContextHandlingFaultAsync>d__8.MoveNext()
+--- Konec trasování zásobníku z předchozího místa, ze kterého byla vyvolána výjimka ---
+   v System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   v Microsoft.VisualStudio.ProjectSystem.CommonProjectSystemTools.Rethrow(Exception ex)
+   v Microsoft.VisualStudio.ProjectSystem.ExceptionFilter.<>c__DisplayClass2_0.<Guard>g__Action|0()
+   v GuardMethodClass.GuardMethod(Func`1 , Func`2 , Func`2 )
+===================
