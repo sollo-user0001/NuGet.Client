@@ -110,6 +110,7 @@ Copyright (c) .NET Foundation. All rights reserved.
   <UsingTask TaskName="NuGet.Build.Tasks.GetReferenceNearestTargetFrameworkTask" AssemblyFile="$(RestoreTaskAssemblyFile)" />
   <UsingTask TaskName="NuGet.Build.Tasks.GetRestoreProjectStyleTask" AssemblyFile="$(RestoreTaskAssemblyFile)" />
   <UsingTask TaskName="NuGet.Build.Tasks.NuGetMessageTask" AssemblyFile="$(RestoreTaskAssemblyFile)" />
+  <UsingTask TaskName="NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask" AssemblyFile="$(RestoreTaskAssemblyFile)" />
 
   <!--
     ============================================================
@@ -174,7 +175,32 @@ Copyright (c) .NET Foundation. All rights reserved.
     package references before NuGet reads them.
     ============================================================
   -->
-  <Target Name="CollectPackageReferences" Returns="@(PackageReference)" />
+  <Target Name="CollectPackageReferences" Returns="@(PackageReference)" >
+
+    <!-- NOTE for design-time builds we continue on error and remove the duplicate items.
+         This is because otherwise there won't be any PackageReference passed, leading to potentially many compile errors due to missing references.
+         Amidst all the compile errors, it would be easy to miss the duplicate items error which is the real source of the problem. -->
+
+    <CheckForDuplicateNuGetItemsTask
+      Items="@(PackageReference)"
+      ItemName="PackageReference"
+      LogCode="NU1013"
+      ContinueOnError="$(ContinueOnError)"
+      MSBuildProjectFullPath="$(MSBuildProjectFullPath)"
+      TreatWarningsAsErrors="$(TreatWarningsAsErrors)"
+      WarningsAsErrors="$(WarningsAsErrors)"
+      NoWarn="$(NoWarn)"
+      >
+      <Output TaskParameter="DeduplicatedItems" ItemName="DeduplicatedPackageReferences" />
+      <Output TaskParameter="AnyItemsDeduplicated" ItemName="AnyItemsDeduplicated" />
+    </CheckForDuplicateNuGetItemsTask>
+
+    <ItemGroup Condition="'$(AnyItemsDeduplicated)' == 'true'">
+      <PackageReference Remove="@(PackageReference)" />
+      <PackageReference Include="@(DeduplicatedPackageReferences)" />
+    </ItemGroup>
+
+  </Target>
 
   <!--
     ============================================================
@@ -182,7 +208,32 @@ Copyright (c) .NET Foundation. All rights reserved.
     Gathers all PackageVersion items from the central package versions file.
     ============================================================
   -->
-  <Target Name="CollectCentralPackageVersions" Returns="@(PackageVersion)" />
+  <Target Name="CollectCentralPackageVersions" Returns="@(PackageVersion)">
+
+    <!-- NOTE for design-time builds we continue on error and remove the duplicate items.
+         This is because otherwise there won't be any PackageVersion passed, leading to potentially many compile errors due to missing references.
+         Amidst all the compile errors, it would be easy to miss the duplicate items error which is the real source of the problem. -->
+
+    <CheckForDuplicateNuGetItemsTask
+      Items="@(PackageVersion)"
+      ItemName="PackageVersion"
+      LogCode="NU1015"
+      ContinueOnError="$(ContinueOnError)"
+      MSBuildProjectFullPath="$(MSBuildProjectFullPath)"
+      TreatWarningsAsErrors="$(TreatWarningsAsErrors)"
+      WarningsAsErrors="$(WarningsAsErrors)"
+      NoWarn="$(NoWarn)"
+      >
+      <Output TaskParameter="DeduplicatedItems" ItemName="DeduplicatedPackageVersions" />
+      <Output TaskParameter="AnyItemsDeduplicated" ItemName="AnyItemsDeduplicated" />
+    </CheckForDuplicateNuGetItemsTask>
+
+    <ItemGroup Condition="'$(AnyItemsDeduplicated)' == 'true'">
+      <PackageReference Remove="@(PackageVersion)" />
+      <PackageReference Include="@(DeduplicatedPackageVersions)" />
+    </ItemGroup>
+    
+  </Target>
 
   <!--
     ============================================================
@@ -192,7 +243,30 @@ Copyright (c) .NET Foundation. All rights reserved.
     package downloads before NuGet reads them.
     ============================================================
   -->
-  <Target Name="CollectPackageDownloads" Returns="@(PackageDownload)" />
+  <Target Name="CollectPackageDownloads" Returns="@(PackageDownload)">
+    <!-- NOTE for design-time builds we continue on error and remove the duplicate items.
+         This is because otherwise there won't be any PackageDownload passed, leading to potentially many compile errors due to missing references.
+         Amidst all the compile errors, it would be easy to miss the duplicate items error which is the real source of the problem. -->
+
+    <CheckForDuplicateNuGetItemsTask
+      Items="@(PackageDownload)"
+      ItemName="PackageDownload"
+      LogCode="NU1014"
+      ContinueOnError="$(ContinueOnError)"
+      MSBuildProjectFullPath="$(MSBuildProjectFullPath)"
+      TreatWarningsAsErrors="$(TreatWarningsAsErrors)"
+      WarningsAsErrors="$(WarningsAsErrors)"
+      NoWarn="$(NoWarn)"
+      >
+      <Output TaskParameter="DeduplicatedItems" ItemName="DeduplicatedPackageDownloads" />
+      <Output TaskParameter="AnyItemsDeduplicated" ItemName="AnyItemsDeduplicated" />
+    </CheckForDuplicateNuGetItemsTask>
+
+    <ItemGroup Condition="'$(AnyItemsDeduplicated)' == 'true'">
+      <PackageReference Remove="@(PackageDownload)" />
+      <PackageReference Include="@(DeduplicatedPackageDownloads)" />
+    </ItemGroup>
+  </Target>
 
   <!--
     ============================================================
@@ -1296,7 +1370,7 @@ Copyright (c) .NET Foundation. All rights reserved.
       <_ValidProjectsForRestore Include="$(MSBuildProjectFullPath)" />
     </ItemGroup>
   </Target>
-
+  
   <!--
     ============================================================
     Import NuGet.RestoreEx.targets if the MSBuild property 'RestoreEnableStaticGraph'

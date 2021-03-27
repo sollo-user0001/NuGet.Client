@@ -1,0 +1,22 @@
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.AnyItemsDeduplicated.get -> bool
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.AnyItemsDeduplicated.set -> void
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.CheckForDuplicateNuGetItemsTask() -> void
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.DeduplicatedItems.get -> Microsoft.Build.Framework.ITaskItem[]
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.DeduplicatedItems.set -> void
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.ItemName.get -> string
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.ItemName.set -> void
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.Items.get -> Microsoft.Build.Framework.ITaskItem[]
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.Items.set -> void
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.LogCode.get -> string
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.LogCode.set -> void
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.MSBuildProjectFullPath.get -> string
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.MSBuildProjectFullPath.set -> void
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.NoWarn.get -> string
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.NoWarn.set -> void
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.TreatWarningsAsErrors.get -> string
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.TreatWarningsAsErrors.set -> void
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.WarningsAsErrors.get -> string
+NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.WarningsAsErrors.set -> void
+override NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.Execute() -> bool
+static NuGet.Build.Tasks.Strings.Error_DuplicateItems.get -> string
