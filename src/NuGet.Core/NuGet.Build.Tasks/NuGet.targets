@@ -180,16 +180,21 @@ Copyright (c) .NET Foundation. All rights reserved.
     <!-- NOTE for design-time builds we continue on error and remove the duplicate items.
          This is because otherwise there won't be any PackageReference passed, leading to potentially many compile errors due to missing references.
          Amidst all the compile errors, it would be easy to miss the duplicate items error which is the real source of the problem. -->
+    <PropertyGroup>
+      <CollectPackageReferencesContinueOnError>$(ContinueOnError)</CollectPackageReferencesContinueOnError>
+      <CollectPackageReferencesContinueOnError Condition="'$(ContinueOnError)' == '' ">false</CollectPackageReferencesContinueOnError>
+      <CollectPackageReferencesContinueOnError Condition="'$(RestoreWithNuGetExe)' == 'true' ">$(RestoreContinueOnError)</CollectPackageReferencesContinueOnError>
+    </PropertyGroup>
 
     <CheckForDuplicateNuGetItemsTask
       Items="@(PackageReference)"
       ItemName="PackageReference"
       LogCode="NU1013"
-      ContinueOnError="$(ContinueOnError)"
       MSBuildProjectFullPath="$(MSBuildProjectFullPath)"
       TreatWarningsAsErrors="$(TreatWarningsAsErrors)"
       WarningsAsErrors="$(WarningsAsErrors)"
       NoWarn="$(NoWarn)"
+      ContinueOnError="$(CollectPackageReferencesContinueOnError)"
       >
       <Output TaskParameter="DeduplicatedItems" ItemName="DeduplicatedPackageReferences" />
       <Output TaskParameter="AnyItemsDeduplicated" ItemName="AnyItemsDeduplicated" />
@@ -213,24 +218,29 @@ Copyright (c) .NET Foundation. All rights reserved.
     <!-- NOTE for design-time builds we continue on error and remove the duplicate items.
          This is because otherwise there won't be any PackageVersion passed, leading to potentially many compile errors due to missing references.
          Amidst all the compile errors, it would be easy to miss the duplicate items error which is the real source of the problem. -->
+    <PropertyGroup>
+      <CollectCentralPackageVersionsContinueOnError>$(ContinueOnError)</CollectCentralPackageVersionsContinueOnError>
+      <CollectCentralPackageVersionsContinueOnError Condition="'$(ContinueOnError)' == '' ">false</CollectCentralPackageVersionsContinueOnError>
+      <CollectCentralPackageVersionsContinueOnError Condition="'$(RestoreWithNuGetExe)' == 'true' ">$(RestoreContinueOnError)</CollectCentralPackageVersionsContinueOnError>
+    </PropertyGroup>
 
     <CheckForDuplicateNuGetItemsTask
       Items="@(PackageVersion)"
       ItemName="PackageVersion"
       LogCode="NU1015"
-      ContinueOnError="$(ContinueOnError)"
       MSBuildProjectFullPath="$(MSBuildProjectFullPath)"
       TreatWarningsAsErrors="$(TreatWarningsAsErrors)"
       WarningsAsErrors="$(WarningsAsErrors)"
       NoWarn="$(NoWarn)"
+      ContinueOnError="$(CollectCentralPackageVersionsContinueOnError)"
       >
       <Output TaskParameter="DeduplicatedItems" ItemName="DeduplicatedPackageVersions" />
       <Output TaskParameter="AnyItemsDeduplicated" ItemName="AnyItemsDeduplicated" />
     </CheckForDuplicateNuGetItemsTask>
 
     <ItemGroup Condition="'$(AnyItemsDeduplicated)' == 'true'">
-      <PackageReference Remove="@(PackageVersion)" />
-      <PackageReference Include="@(DeduplicatedPackageVersions)" />
+      <PackageVersion Remove="@(PackageVersion)" />
+      <PackageVersion Include="@(DeduplicatedPackageVersions)" />
     </ItemGroup>
     
   </Target>
@@ -247,24 +257,29 @@ Copyright (c) .NET Foundation. All rights reserved.
     <!-- NOTE for design-time builds we continue on error and remove the duplicate items.
          This is because otherwise there won't be any PackageDownload passed, leading to potentially many compile errors due to missing references.
          Amidst all the compile errors, it would be easy to miss the duplicate items error which is the real source of the problem. -->
+    <PropertyGroup>
+      <CollectPackageDownloadsContinueOnError>$(ContinueOnError)</CollectPackageDownloadsContinueOnError>
+      <CollectPackageDownloadsContinueOnError Condition="'$(ContinueOnError)' == '' ">false</CollectPackageDownloadsContinueOnError>
+      <CollectPackageDownloadsContinueOnError Condition="'$(RestoreWithNuGetExe)' == 'true' ">$(RestoreContinueOnError)</CollectPackageDownloadsContinueOnError>
+    </PropertyGroup>
 
     <CheckForDuplicateNuGetItemsTask
       Items="@(PackageDownload)"
       ItemName="PackageDownload"
       LogCode="NU1014"
-      ContinueOnError="$(ContinueOnError)"
       MSBuildProjectFullPath="$(MSBuildProjectFullPath)"
       TreatWarningsAsErrors="$(TreatWarningsAsErrors)"
       WarningsAsErrors="$(WarningsAsErrors)"
       NoWarn="$(NoWarn)"
+      ContinueOnError="$(CollectPackageDownloadsContinueOnError)"
       >
       <Output TaskParameter="DeduplicatedItems" ItemName="DeduplicatedPackageDownloads" />
       <Output TaskParameter="AnyItemsDeduplicated" ItemName="AnyItemsDeduplicated" />
     </CheckForDuplicateNuGetItemsTask>
 
     <ItemGroup Condition="'$(AnyItemsDeduplicated)' == 'true'">
-      <PackageReference Remove="@(PackageDownload)" />
-      <PackageReference Include="@(DeduplicatedPackageDownloads)" />
+      <PackageDownload Remove="@(PackageDownload)" />
+      <PackageDownload Include="@(DeduplicatedPackageDownloads)" />
     </ItemGroup>
   </Target>
 
