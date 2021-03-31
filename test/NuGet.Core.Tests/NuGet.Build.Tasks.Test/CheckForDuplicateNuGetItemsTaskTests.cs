@@ -40,7 +40,7 @@ namespace NuGet.Build.Tasks.Test
                 BuildEngine = buildEngine,
                 ItemName = "PackageReference",
                 Items = items,
-                LogCode = "NU1013"
+                LogCode = "NU1504"
             };
 
             // Act
@@ -80,7 +80,7 @@ namespace NuGet.Build.Tasks.Test
                 BuildEngine = buildEngine,
                 ItemName = "PackageReference",
                 Items = items,
-                LogCode = "NU1013"
+                LogCode = "NU1504"
             };
 
             // Act
@@ -120,7 +120,7 @@ namespace NuGet.Build.Tasks.Test
                 BuildEngine = buildEngine,
                 ItemName = "PackageReference",
                 Items = items,
-                LogCode = "NU1013"
+                LogCode = "NU1504"
             };
 
             // Act
@@ -183,7 +183,7 @@ namespace NuGet.Build.Tasks.Test
                 BuildEngine = buildEngine,
                 ItemName = "PackageReference",
                 Items = items,
-                LogCode = "NU1013"
+                LogCode = "NU1504"
             };
 
             // Act

@@ -38,9 +38,6 @@ namespace NuGet.Build.Tasks
         [Output]
         public ITaskItem[] DeduplicatedItems { get; set; }
 
-        [Output]
-        public bool AnyItemsDeduplicated { get; set; }
-
         public override bool Execute()
         {
             DeduplicatedItems = Array.Empty<ITaskItem>();
@@ -69,7 +66,6 @@ namespace NuGet.Build.Tasks
                 });
 
                 // Set Output
-                AnyItemsDeduplicated = true;
                 DeduplicatedItems = itemGroups.Select(g => g.First()).ToArray();
             }
 

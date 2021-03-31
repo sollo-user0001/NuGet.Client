@@ -1,6 +1,4 @@
 NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask
-NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.AnyItemsDeduplicated.get -> bool
-NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.AnyItemsDeduplicated.set -> void
 NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.CheckForDuplicateNuGetItemsTask() -> void
 NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.DeduplicatedItems.get -> Microsoft.Build.Framework.ITaskItem[]
 NuGet.Build.Tasks.CheckForDuplicateNuGetItemsTask.DeduplicatedItems.set -> void

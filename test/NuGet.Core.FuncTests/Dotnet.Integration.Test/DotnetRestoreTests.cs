@@ -1123,9 +1123,9 @@ EndGlobal";
         }
 
         [Fact]
-        public void DotnetRestore_WithDuplicatePackageReference_ErrorsWithNU1013()
+        public void DotnetRestore_WithDuplicatePackageReference_ErrorsWithNU1504()
         {
-            DotnetRestore_WithDuplicateItem_ErrorsWithLogCode("PackageReference", "NU1013");
+            DotnetRestore_WithDuplicateItem_ErrorsWithLogCode("PackageReference", "NU1504");
         }
 
         [Fact]
@@ -1268,7 +1268,7 @@ EndGlobal";
                 var result = _msbuildFixture.RunDotnet(workingDirectory, $"restore {projectFile} /p:ContinueOnError=true", ignoreExitCode: true);
 
                 result.Success.Should().BeTrue(because: result.AllOutput);
-                result.Errors.Contains("warning NU1013");
+                result.Errors.Contains("warning NU1504");
                 result.AllOutput.Contains("X [1.0.0], X [2.0.0]");
             }
         }

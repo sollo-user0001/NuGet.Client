@@ -197,10 +197,9 @@ Copyright (c) .NET Foundation. All rights reserved.
       ContinueOnError="$(CollectPackageReferencesContinueOnError)"
       >
       <Output TaskParameter="DeduplicatedItems" ItemName="DeduplicatedPackageReferences" />
-      <Output TaskParameter="AnyItemsDeduplicated" ItemName="AnyItemsDeduplicated" />
     </CheckForDuplicateNuGetItemsTask>
 
-    <ItemGroup Condition="'$(AnyItemsDeduplicated)' == 'true'">
+    <ItemGroup Condition="'@(DeduplicatedPackageReferences)' != ''">
       <PackageReference Remove="@(PackageReference)" />
       <PackageReference Include="@(DeduplicatedPackageReferences)" />
     </ItemGroup>
@@ -235,10 +234,9 @@ Copyright (c) .NET Foundation. All rights reserved.
       ContinueOnError="$(CollectCentralPackageVersionsContinueOnError)"
       >
       <Output TaskParameter="DeduplicatedItems" ItemName="DeduplicatedPackageVersions" />
-      <Output TaskParameter="AnyItemsDeduplicated" ItemName="AnyItemsDeduplicated" />
     </CheckForDuplicateNuGetItemsTask>
 
-    <ItemGroup Condition="'$(AnyItemsDeduplicated)' == 'true'">
+    <ItemGroup Condition="'@(DeduplicatedPackageVersions)' != ''">
       <PackageVersion Remove="@(PackageVersion)" />
       <PackageVersion Include="@(DeduplicatedPackageVersions)" />
     </ItemGroup>
@@ -274,10 +272,9 @@ Copyright (c) .NET Foundation. All rights reserved.
       ContinueOnError="$(CollectPackageDownloadsContinueOnError)"
       >
       <Output TaskParameter="DeduplicatedItems" ItemName="DeduplicatedPackageDownloads" />
-      <Output TaskParameter="AnyItemsDeduplicated" ItemName="AnyItemsDeduplicated" />
     </CheckForDuplicateNuGetItemsTask>
 
-    <ItemGroup Condition="'$(AnyItemsDeduplicated)' == 'true'">
+    <ItemGroup Condition="'@(DeduplicatedPackageDownloads)' != ''">
       <PackageDownload Remove="@(PackageDownload)" />
       <PackageDownload Include="@(DeduplicatedPackageDownloads)" />
     </ItemGroup>
