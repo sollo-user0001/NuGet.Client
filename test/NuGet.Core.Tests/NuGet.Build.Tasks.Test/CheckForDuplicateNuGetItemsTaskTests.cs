@@ -49,10 +49,11 @@ namespace NuGet.Build.Tasks.Test
             // Assert
             result.Should().BeTrue();
             task.DeduplicatedItems.Length.Should().Be(0);
+            buildEngine.TestLogger.Messages.Should().HaveCount(0);
         }
 
         [Fact]
-        public void CheckForDuplicateNuGetItemsTask_WithDuplicateItems_ReturnsFalse()
+        public void CheckForDuplicateNuGetItemsTask_WithDuplicateItems_LogsWarning_ReturnsTrue()
         {
             // Arrange
             var buildEngine = new TestBuildEngine();
@@ -87,8 +88,9 @@ namespace NuGet.Build.Tasks.Test
             var result = task.Execute();
 
             // Assert
-            result.Should().BeFalse();
+            result.Should().BeTrue();
             task.DeduplicatedItems.Length.Should().Be(1);
+            buildEngine.TestLogger.WarningMessages.Should().HaveCount(1);
         }
 
         [Fact]
@@ -127,7 +129,8 @@ namespace NuGet.Build.Tasks.Test
             var result = task.Execute();
 
             // Assert
-            result.Should().BeFalse();
+            result.Should().BeTrue();
+            buildEngine.TestLogger.WarningMessages.Should().HaveCount(1);
             task.DeduplicatedItems.Length.Should().Be(1);
             var item = task.DeduplicatedItems.Single();
             item.ItemSpec.Should().Be("x");
@@ -190,7 +193,8 @@ namespace NuGet.Build.Tasks.Test
             var result = task.Execute();
 
             // Assert
-            result.Should().BeFalse();
+            result.Should().BeTrue();
+            buildEngine.TestLogger.WarningMessages.Should().HaveCount(1);
             task.DeduplicatedItems.Length.Should().Be(3);
 
             var dedupItems = task.DeduplicatedItems;
@@ -202,6 +206,181 @@ namespace NuGet.Build.Tasks.Test
 
             dedupItems[2].ItemSpec.Should().Be("z");
             dedupItems[2].GetMetadata("Version").Should().Be("2.0.0");
+        }
+
+        [Fact]
+        public void CheckForDuplicateNuGetItemsTask_WithNoWarn_SuppressesWarning()
+        {
+            // Arrange
+            var buildEngine = new TestBuildEngine();
+
+            var packageX1 = new TaskItem
+            {
+                ItemSpec = "x"
+            };
+            packageX1.SetMetadata("Version", "[1.0.0]");
+
+            var packageX2 = new TaskItem
+            {
+                ItemSpec = "x",
+            };
+            packageX2.SetMetadata("Version", "2.0.0");
+
+            var items = new ITaskItem[]
+            {
+                packageX1,
+                packageX2,
+            };
+
+            var task = new CheckForDuplicateNuGetItemsTask()
+            {
+                BuildEngine = buildEngine,
+                ItemName = "PackageReference",
+                Items = items,
+                LogCode = "NU1504",
+                NoWarn = "1234;5678;NU1504"
+            };
+
+            // Act
+            var result = task.Execute();
+
+            // Assert
+            result.Should().BeTrue();
+            task.DeduplicatedItems.Length.Should().Be(1);
+            buildEngine.TestLogger.WarningMessages.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public void CheckForDuplicateNuGetItemsTask_WithTreatWarningsAsErrors_ReturnsFalse()
+        {
+            // Arrange
+            var buildEngine = new TestBuildEngine();
+
+            var packageX1 = new TaskItem
+            {
+                ItemSpec = "x"
+            };
+            packageX1.SetMetadata("Version", "[1.0.0]");
+
+            var packageX2 = new TaskItem
+            {
+                ItemSpec = "x",
+            };
+            packageX2.SetMetadata("Version", "2.0.0");
+
+            var items = new ITaskItem[]
+            {
+                packageX1,
+                packageX2,
+            };
+
+            var task = new CheckForDuplicateNuGetItemsTask()
+            {
+                BuildEngine = buildEngine,
+                ItemName = "PackageReference",
+                Items = items,
+                LogCode = "NU1504",
+                NoWarn = "1234;5678",
+                TreatWarningsAsErrors = "true"
+            };
+
+            // Act
+            var result = task.Execute();
+
+            // Assert
+            result.Should().BeFalse();
+            task.DeduplicatedItems.Length.Should().Be(1);
+            buildEngine.TestLogger.WarningMessages.Should().HaveCount(0);
+            buildEngine.TestLogger.ErrorMessages.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void CheckForDuplicateNuGetItemsTask_WithTreatWarningsAsErrorsAndSuppressedWarning_ReturnsTrue()
+        {
+            // Arrange
+            var buildEngine = new TestBuildEngine();
+
+            var packageX1 = new TaskItem
+            {
+                ItemSpec = "x"
+            };
+            packageX1.SetMetadata("Version", "[1.0.0]");
+
+            var packageX2 = new TaskItem
+            {
+                ItemSpec = "x",
+            };
+            packageX2.SetMetadata("Version", "2.0.0");
+
+            var items = new ITaskItem[]
+            {
+                packageX1,
+                packageX2,
+            };
+
+            var task = new CheckForDuplicateNuGetItemsTask()
+            {
+                BuildEngine = buildEngine,
+                ItemName = "PackageReference",
+                Items = items,
+                LogCode = "NU1504",
+                NoWarn = "1234;5678;NU1504",
+                TreatWarningsAsErrors = "true"
+            };
+
+            // Act
+            var result = task.Execute();
+
+            // Assert
+            result.Should().BeTrue();
+            task.DeduplicatedItems.Length.Should().Be(1);
+            buildEngine.TestLogger.WarningMessages.Should().HaveCount(0);
+            buildEngine.TestLogger.ErrorMessages.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public void CheckForDuplicateNuGetItemsTask_WithWarningsAsErrors_ReturnsFalse()
+        {
+            // Arrange
+            var buildEngine = new TestBuildEngine();
+
+            var packageX1 = new TaskItem
+            {
+                ItemSpec = "x"
+            };
+            packageX1.SetMetadata("Version", "[1.0.0]");
+
+            var packageX2 = new TaskItem
+            {
+                ItemSpec = "x",
+            };
+            packageX2.SetMetadata("Version", "2.0.0");
+
+            var items = new ITaskItem[]
+            {
+                packageX1,
+                packageX2,
+            };
+
+            var task = new CheckForDuplicateNuGetItemsTask()
+            {
+                BuildEngine = buildEngine,
+                ItemName = "PackageReference",
+                Items = items,
+                LogCode = "NU1504",
+                NoWarn = "1234;5678",
+                TreatWarningsAsErrors = "false",
+                WarningsAsErrors = "NU1504"
+            };
+
+            // Act
+            var result = task.Execute();
+
+            // Assert
+            result.Should().BeFalse();
+            task.DeduplicatedItems.Length.Should().Be(1);
+            buildEngine.TestLogger.WarningMessages.Should().HaveCount(0);
+            buildEngine.TestLogger.ErrorMessages.Should().HaveCount(1);
         }
     }
 }

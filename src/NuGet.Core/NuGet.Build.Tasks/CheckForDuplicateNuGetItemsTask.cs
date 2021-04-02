@@ -69,7 +69,7 @@ namespace NuGet.Build.Tasks
                 DeduplicatedItems = itemGroups.Select(g => g.First()).ToArray();
             }
 
-            return true;
+            return !Log.HasLoggedErrors;
         }
 
         private WarningProperties EvaluateWarningProperties(string warningsAsErrors, string noWarn, string treatWarningsAsErrors)
