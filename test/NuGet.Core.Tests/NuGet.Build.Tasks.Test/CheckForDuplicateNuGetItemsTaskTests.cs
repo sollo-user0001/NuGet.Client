@@ -12,7 +12,7 @@ namespace NuGet.Build.Tasks.Test
     public class CheckForDuplicateNuGetItemsTaskTests
     {
         [Fact]
-        public void CheckForDuplicateNuGetItemsTask_WithoutDuplicateItems_ReturnsTrue()
+        public void Execute_WithoutDuplicateItems_ReturnsTrue()
         {
             // Arrange
             var buildEngine = new TestBuildEngine();
@@ -53,7 +53,7 @@ namespace NuGet.Build.Tasks.Test
         }
 
         [Fact]
-        public void CheckForDuplicateNuGetItemsTask_WithDuplicateItems_LogsWarning_ReturnsTrue()
+        public void Execute_WithDuplicateItems_LogsWarning_ReturnsTrue()
         {
             // Arrange
             var buildEngine = new TestBuildEngine();
@@ -94,7 +94,7 @@ namespace NuGet.Build.Tasks.Test
         }
 
         [Fact]
-        public void CheckForDuplicateNuGetItemsTask_WithDuplicateItems_SelectsFirstItem()
+        public void Execute_WithDuplicateItems_SelectsFirstItem()
         {
             // Arrange
             var buildEngine = new TestBuildEngine();
@@ -138,7 +138,7 @@ namespace NuGet.Build.Tasks.Test
         }
 
         [Fact]
-        public void CheckForDuplicateNuGetItemsTask_WithMultipleDuplicateItems_DeduplicatesAllItems()
+        public void Execute_WithMultipleDuplicateItems_DeduplicatesAllItems()
         {
             // Arrange
             var buildEngine = new TestBuildEngine();
@@ -209,7 +209,7 @@ namespace NuGet.Build.Tasks.Test
         }
 
         [Fact]
-        public void CheckForDuplicateNuGetItemsTask_WithNoWarn_SuppressesWarning()
+        public void Execute_WithNoWarn_SuppressesWarning()
         {
             // Arrange
             var buildEngine = new TestBuildEngine();
@@ -251,7 +251,7 @@ namespace NuGet.Build.Tasks.Test
         }
 
         [Fact]
-        public void CheckForDuplicateNuGetItemsTask_WithTreatWarningsAsErrors_ReturnsFalse()
+        public void Execute_WithTreatWarningsAsErrors_ReturnsFalse()
         {
             // Arrange
             var buildEngine = new TestBuildEngine();
@@ -295,7 +295,7 @@ namespace NuGet.Build.Tasks.Test
         }
 
         [Fact]
-        public void CheckForDuplicateNuGetItemsTask_WithTreatWarningsAsErrorsAndSuppressedWarning_ReturnsTrue()
+        public void Execute_WithTreatWarningsAsErrorsAndSuppressedWarning_ReturnsTrue()
         {
             // Arrange
             var buildEngine = new TestBuildEngine();
@@ -339,7 +339,7 @@ namespace NuGet.Build.Tasks.Test
         }
 
         [Fact]
-        public void CheckForDuplicateNuGetItemsTask_WithWarningsAsErrors_ReturnsFalse()
+        public void Execute_WithWarningsAsErrors_ReturnsFalse()
         {
             // Arrange
             var buildEngine = new TestBuildEngine();

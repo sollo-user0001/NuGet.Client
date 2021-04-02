@@ -1129,10 +1129,9 @@ EndGlobal";
         }
 
         [Fact]
-
-        public void DotnetRestore_WithDuplicatePackageDownload_ErrorsWithNU1014()
+        public void DotnetRestore_WithDuplicatePackageDownload_ErrorsWithNU1505()
         {
-            DotnetRestore_WithDuplicateItem_ErrorsWithLogCode("PackageDownload", "NU1014");
+            DotnetRestore_WithDuplicateItem_ErrorsWithLogCode("PackageDownload", "NU1505");
         }
 
         private void DotnetRestore_WithDuplicateItem_ErrorsWithLogCode(string itemName, string logCode)
@@ -1179,7 +1178,7 @@ EndGlobal";
         }
 
         [Fact]
-        public void DotnetRestore_WithDuplicatePackageVersion_ErrorsWithNU1015()
+        public void DotnetRestore_WithDuplicatePackageVersion_ErrorsWithNU1506()
         {
             using (var pathContext = _msbuildFixture.CreateSimpleTestPathContext())
             {
@@ -1222,7 +1221,7 @@ EndGlobal";
                 var result = _msbuildFixture.RunDotnet(workingDirectory, $"restore {projectFile}", ignoreExitCode: true);
 
                 result.Success.Should().BeFalse();
-                result.Errors.Contains("NU1015");
+                result.Errors.Contains("NU1506");
                 result.AllOutput.Contains("X [1.0.0], X [2.0.0]");
             }
         }
