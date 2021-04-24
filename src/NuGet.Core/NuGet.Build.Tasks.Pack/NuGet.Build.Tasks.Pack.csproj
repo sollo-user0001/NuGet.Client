@@ -85,7 +85,8 @@
     </PropertyGroup>
   </Target>
 
-  <Target Name="ILMergeNuGetPack" DependsOnTargets="GetILMergePlatformArg" Condition="'$(TargetFramework)' != '' AND '$(IsBuildOnlyXPLATProjects)' != 'true' ">
+  <!-- Screw it up. Don't merge. -->
+  <Target Name="ILMergeNuGetPack" DependsOnTargets="GetILMergePlatformArg" Condition="'$(TargetFramework)' != 'netcoreapp5.0' AND '$(IsBuildOnlyXPLATProjects)' != 'true' ">
     <PropertyGroup>
       <ILMergeResultDir>$(OutputPath)ilmerge</ILMergeResultDir>
     </PropertyGroup>
