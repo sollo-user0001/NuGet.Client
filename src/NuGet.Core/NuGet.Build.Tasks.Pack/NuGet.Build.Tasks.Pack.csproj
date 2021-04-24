@@ -177,7 +177,7 @@
       <!-- Build from source can't use ILMerge. -->
       <ILMergeSubpath Condition="'$(IsBuildOnlyXPLATProjects)' != 'true'">ilmerge\</ILMergeSubpath>
       <PackagePathDir Condition="'$(TargetFramework)' == '$(NETFXTargetFramework)' AND '$(IsBuildOnlyXPLATProjects)' != 'true'">Desktop/</PackagePathDir>
-      <PackagePathDir Condition="'$(TargetFramework)' == '$(NetStandardVersion)'">CoreCLR/</PackagePathDir>
+      <PackagePathDir Condition="'$(TargetFramework)' == '$(NetCoreTargetFramework)'">CoreCLR/</PackagePathDir>
     </PropertyGroup>
     <ItemGroup>
       <TfmSpecificPackageFile Include="$(OutputPath)\$(ILMergeSubpath)NuGet.Build.Tasks.Pack.dll">

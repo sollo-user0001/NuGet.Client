@@ -3,7 +3,7 @@
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
   <PropertyGroup>
-    <TargetFrameworks Condition=" '$(IsVsixBuild)' != 'true' ">$(TargetFrameworksExeForSigning)</TargetFrameworks>
+    <TargetFrameworks Condition=" '$(IsVsixBuild)' != 'true' ">$(TargetFrameworksExe)</TargetFrameworks>
     <TargetFramework Condition=" '$(IsVsixBuild)' == 'true' ">$(NETFXTargetFramework)</TargetFramework>
     <OutputType>Exe</OutputType>
     <Shipping>true</Shipping>

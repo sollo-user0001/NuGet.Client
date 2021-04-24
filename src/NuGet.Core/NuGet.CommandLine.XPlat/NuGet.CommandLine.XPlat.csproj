@@ -4,7 +4,7 @@
 
   <PropertyGroup>
     <Description>NuGet executable wrapper for the dotnet CLI nuget functionality.</Description>
-    <TargetFrameworks>$(TargetFrameworksExeForSigning)</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworksExe)</TargetFrameworks>
     <RuntimeIdentifier Condition=" '$(TargetFramework)' == '$(NETFXTargetFramework)' ">win7-x86</RuntimeIdentifier>
     <NoWarn>$(NoWarn);CS1591;CS1701</NoWarn>
     <OutputType>Exe</OutputType>

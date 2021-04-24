@@ -292,15 +292,15 @@ Condition=" ('%(Extension)' == '.dll' OR '%(Filename)' == 'NuGet.CommandLine.XPl
       <_LocalizedDllsNetStandard10 Include="$(OutputPath)netstandard1.0\**\$(AssemblyName).resources.dll"/>
 
       <_LocalizedNetCoreDllsWithRelativeTargetPath Include="@(_LocalizedDllsNetCoreApp)" Condition=" '@(_LocalizedDllsNetCoreApp)' != '' ">
-        <RelativeTargetPath>$(NetStandardVersion)\%(_LocalizedDllsNetCoreApp.RecursiveDir)%(_LocalizedDllsNetCoreApp.FileName)%(_LocalizedDllsNetCoreApp.Extension)</RelativeTargetPath>
+        <RelativeTargetPath>$(NETCoreTargetFramework)\%(_LocalizedDllsNetCoreApp.RecursiveDir)%(_LocalizedDllsNetCoreApp.FileName)%(_LocalizedDllsNetCoreApp.Extension)</RelativeTargetPath>
       </_LocalizedNetCoreDllsWithRelativeTargetPath>
 
       <_LocalizedNetCoreDllsWithRelativeTargetPath Include="@(_LocalizedDllsNetStandard10)" Condition=" '@(_LocalizedDllsNetStandard10)' != '' ">
-        <RelativeTargetPath>$(NetStandardVersion)\%(_LocalizedDllsNetStandard10.RecursiveDir)%(_LocalizedDllsNetStandard10.FileName)%(_LocalizedDllsNetStandard10.Extension)</RelativeTargetPath>
+        <RelativeTargetPath>$(NETCoreTargetFramework)\%(_LocalizedDllsNetStandard10.RecursiveDir)%(_LocalizedDllsNetStandard10.FileName)%(_LocalizedDllsNetStandard10.Extension)</RelativeTargetPath>
       </_LocalizedNetCoreDllsWithRelativeTargetPath>
 
       <_LocalizedNetCoreDllsWithRelativeTargetPath Include="@(_LocalizedDllsNetStandard)" Condition=" '@(_LocalizedDllsNetStandard)' != '' ">
-        <RelativeTargetPath>$(NetStandardVersion)\%(_LocalizedDllsNetStandard.RecursiveDir)%(_LocalizedDllsNetStandard.FileName)%(_LocalizedDllsNetStandard.Extension)</RelativeTargetPath>
+        <RelativeTargetPath>$(NETCoreTargetFramework)\%(_LocalizedDllsNetStandard.RecursiveDir)%(_LocalizedDllsNetStandard.FileName)%(_LocalizedDllsNetStandard.Extension)</RelativeTargetPath>
       </_LocalizedNetCoreDllsWithRelativeTargetPath>
     </ItemGroup>
   </Target>

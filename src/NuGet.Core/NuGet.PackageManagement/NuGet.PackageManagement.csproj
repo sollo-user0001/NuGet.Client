@@ -36,7 +36,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   
-  <ItemGroup Condition=" '$(TargetFramework)' == '$(NetStandardVersion)' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == '$(NetCoreTargetFramework)' ">
     <PackageReference Include="System.ComponentModel.Composition" />
   </ItemGroup>
 
