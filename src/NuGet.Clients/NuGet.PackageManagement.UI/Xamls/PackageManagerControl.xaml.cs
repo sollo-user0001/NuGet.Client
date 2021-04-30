@@ -1009,13 +1009,33 @@ namespace NuGet.PackageManagement.UI
 
         private void PackageList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            //TODO relocate
+            var intervalTracker = new IntervalTracker("PMUIInformation");
+            IDisposable activity = intervalTracker.Start("PackageList_SelectionChanged");
+            
             var loadCts = new CancellationTokenSource();
             var oldCts = Interlocked.Exchange(ref _cancelSelectionChangedSource, loadCts);
             oldCts?.Cancel();
             oldCts?.Dispose();
 
+            List<IDisposable> listInners = new List<IDisposable>();
+
+            for (int i = 0; i < 25; i++)
+            {
+                listInners.Add(intervalTracker.Start("HTTP_Work"));
+            }
+
             NuGetUIThreadHelper.JoinableTaskFactory
-                .RunAsync(async () => await UpdateDetailPaneAsync(loadCts.Token))
+                .RunAsync(async () =>
+                {
+                    await UpdateDetailPaneAsync(loadCts.Token);
+                    foreach (var inner in listInners)
+                    {
+                        inner.Dispose();
+                    }
+
+                    activity.Dispose();
+                })
                 .PostOnFailure(nameof(PackageManagerControl), nameof(PackageList_SelectionChanged));
         }
 
