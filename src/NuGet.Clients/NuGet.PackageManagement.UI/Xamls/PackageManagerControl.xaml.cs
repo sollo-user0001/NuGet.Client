@@ -1018,22 +1018,10 @@ namespace NuGet.PackageManagement.UI
             oldCts?.Cancel();
             oldCts?.Dispose();
 
-            List<IDisposable> listInners = new List<IDisposable>();
-
-            for (int i = 0; i < 25; i++)
-            {
-                listInners.Add(intervalTracker.Start("HTTP_Work"));
-            }
-
             NuGetUIThreadHelper.JoinableTaskFactory
                 .RunAsync(async () =>
                 {
                     await UpdateDetailPaneAsync(loadCts.Token);
-                    foreach (var inner in listInners)
-                    {
-                        inner.Dispose();
-                    }
-
                     activity.Dispose();
                 })
                 .PostOnFailure(nameof(PackageManagerControl), nameof(PackageList_SelectionChanged));
