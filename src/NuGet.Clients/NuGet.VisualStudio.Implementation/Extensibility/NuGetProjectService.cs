@@ -18,6 +18,7 @@ using NuGet.ProjectManagement;
 using NuGet.ProjectManagement.Projects;
 using NuGet.VisualStudio.Contracts;
 using NuGet.VisualStudio.Telemetry;
+using Task = System.Threading.Tasks.Task;
 
 namespace NuGet.VisualStudio.Implementation.Extensibility
 {
@@ -75,6 +76,40 @@ namespace NuGet.VisualStudio.Implementation.Extensibility
                 throw;
             }
         }
+
+        public Task InstallLatestPackageAsync(Guid projectId, string source, string packageId, bool includePrerelease, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task InstallPackageAsync(Guid projectId, string source, string packageId, string version, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        //public async Task InstallPackageAsync(string source, string projectUniqueName, string packageId, string version, CancellationToken cancellationToken)
+        //{
+        //    cancellationToken.ThrowIfCancellationRequested();
+
+        //    NuGetVersion nugetVersion = null;
+        //    if (version != null)
+        //    {
+        //        _ = NuGetVersion.TryParse(version, out nugetVersion);
+        //    }
+        //    // TODO NK - Make sure all the exceptions are covered, and enumerated.
+        //    await RunJTFWithCorrectContextAsync(
+        //        projectUniqueName,
+        //        () => InstallPackageAsync(source, projectUniqueName, packageId, nugetVersion, includePrerelease: true, ignoreDependencies: false));
+        //}
+
+        //public async Task InstallLatestPackageAsync(string source, string projectUniqueName, string packageId, bool includePrerelease, CancellationToken cancellationToken)
+        //{
+        //    cancellationToken.ThrowIfCancellationRequested();
+
+        //    await RunJTFWithCorrectContextAsync(
+        //        projectUniqueName,
+        //        () => InstallPackageAsync(source, projectUniqueName, packageId, version: null, includePrerelease: includePrerelease, ignoreDependencies: false));
+        //}
 
         private async Task<(InstalledPackageResultStatus, IReadOnlyCollection<NuGetInstalledPackage>)> GetInstalledPackagesAsync(BuildIntegratedNuGetProject project, CancellationToken cancellationToken)
         {

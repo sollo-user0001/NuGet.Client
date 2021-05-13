@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="$(NuGetClientsSrcDirectory)NuGet.PackageManagement.VisualStudio\NuGet.PackageManagement.VisualStudio.csproj" />
+    <ProjectReference Include="$(NuGetClientsSrcDirectory)NuGet.VisualStudio.Contracts\NuGet.VisualStudio.Contracts.csproj" />
   </ItemGroup>
 
   <Import Project="$(BuildCommonDirectory)common.targets" />

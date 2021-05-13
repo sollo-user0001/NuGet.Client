@@ -4,17 +4,83 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft;
+using Microsoft.ServiceHub.Framework;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Threading;
 using NuGet.Common;
 using NuGet.PackageManagement.VisualStudio;
 using NuGet.VisualStudio;
+using NuGet.VisualStudio.Contracts;
 using Task = System.Threading.Tasks.Task;
 
 namespace API.Test
 {
     public static class InternalAPITestHook
     {
+        public static void InstallLatestPackageAsyncApi(string id, bool prerelease, bool invokeOnUIThread)
+        {
+            ThreadHelper.JoinableTaskFactory.Run(
+                async () =>
+                {
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                    var dte = ServiceLocator.GetDTE();
+
+                    var projectUniqueNames = new List<string>();
+                    foreach (EnvDTE.Project project in dte.Solution.Projects)
+                    {
+                        projectUniqueNames.Add(project.Name);
+                    }
+
+                    // This is technically a big no-no in production code,
+                    // but our API needs to be able to safely complete when invoke from both UI thread/background thread.
+                    if (!invokeOnUIThread)
+                    {
+                        await TaskScheduler.Default;
+                    }
+
+                    var service = await GetIVsPackageInstallerClientAsync();
+                    foreach (var projectName in projectUniqueNames)
+                    {
+                        await service.InstallLatestPackageAsync(null, projectName, id, prerelease, CancellationToken.None);
+                        return;
+                    }
+                });
+        }
+
+        public static void InstallPackageAsyncApi(string source, string id, string version, bool invokeOnUIThread)
+        {
+            ThreadHelper.JoinableTaskFactory.Run(
+                async () =>
+                {
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                    var dte = ServiceLocator.GetDTE();
+
+                    var projectUniqueNames = new List<string>();
+                    foreach (EnvDTE.Project project in dte.Solution.Projects)
+                    {
+                        projectUniqueNames.Add(project.Name);
+                    }
+
+                    // Condition thread switches is technically a big no-no in production code,
+                    // but our API needs to be able to safely complete when invoke from both UI thread/background thread.
+                    if (!invokeOnUIThread)
+                    {
+                        await TaskScheduler.Default;
+                    }
+
+                    var service = await GetIVsPackageInstallerClientAsync();
+                    foreach (var projectName in projectUniqueNames)
+                    {
+                        await service.InstallPackageAsync(source, projectName, id, version, CancellationToken.None);
+                        return;
+                    }
+                });
+        }
+
         public static void InstallLatestPackageApi(string id, bool prerelease)
         {
             ThreadHelper.JoinableTaskFactory.Run(
@@ -187,6 +253,22 @@ namespace API.Test
 
                     return false;
                 });
+        }
+
+        private static async Task<INuGetPackageInstaller> GetIVsPackageInstallerClientAsync()
+        {
+            IBrokeredServiceContainer brokeredServiceContainer = await GetBrokeredServiceContainerAsync();
+            Assumes.Present(brokeredServiceContainer);
+            IServiceBroker sb = brokeredServiceContainer.GetFullAccessServiceBroker();
+            INuGetPackageInstaller client = await sb.GetProxyAsync<INuGetPackageInstaller>(NuGetServices.PackageInstallerService);
+            return client;
+        }
+
+        private static async Task<IBrokeredServiceContainer> GetBrokeredServiceContainerAsync()
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            // We don't have access to an async service provider here, so we use the global one.
+            return ServiceLocator.GetService<SVsBrokeredServiceContainer, IBrokeredServiceContainer>();
         }
     }
 }
