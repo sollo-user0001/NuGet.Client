@@ -164,15 +164,15 @@ namespace NuGet.VisualStudio
             }
         }
 
-        // Calls from the sync APIs end up here.
+        // Calls from the installer sync APIs end up here.
         private Task InstallPackageAsync(string source, Project project, string packageId, NuGetVersion version, bool includePrerelease, bool ignoreDependencies)
         {
-            (IEnumerable<string> sources, List<PackageIdentity> toInstall, VSAPIProjectContext projectContext) = PrepForInstallation(source, packageId, version, isAllRespected: false);
+            (IEnumerable<string> sources, List<PackageIdentity> toInstall, VSAPIProjectContext projectContext) = PrepForInstallation(_settings, source, packageId, version, isAllRespected: true);
             Task<NuGetProject> getNuGetProjectAsync(IVsSolutionManager vsSolutionManager) => GetNuGetProjectAsync(vsSolutionManager, project, projectContext);
-            return InstallInternalAsync(getNuGetProjectAsync, toInstall, GetSources(sources), projectContext, includePrerelease, ignoreDependencies, CancellationToken.None);
+            return PackageServiceUtilities.InstallInternalAsync(getNuGetProjectAsync, toInstall, GetSources(sources), _solutionManager, _settings, _deleteOnRestartManager, projectContext, includePrerelease, ignoreDependencies, CancellationToken.None);
         }
 
-        private (IEnumerable<string>, List<PackageIdentity> toInstall, VSAPIProjectContext projectContext) PrepForInstallation(string source, string packageId, NuGetVersion version, bool isAllRespected)
+        internal static (IEnumerable<string>, List<PackageIdentity> toInstall, VSAPIProjectContext projectContext) PrepForInstallation(ISettings settings, string source, string packageId, NuGetVersion version, bool isAllRespected)
         {
             string[] sources = null;
             if (!string.IsNullOrEmpty(source) &&
@@ -191,7 +191,7 @@ namespace NuGet.VisualStudio
                 PackageExtractionContext = new PackageExtractionContext(
                     PackageSaveMode.Defaultv2,
                     PackageExtractionBehavior.XmlDocFileSaveMode,
-                    ClientPolicyContext.GetClientPolicy(_settings, NullLogger.Instance),
+                    ClientPolicyContext.GetClientPolicy(settings, NullLogger.Instance),
                     NullLogger.Instance)
             };
             return (sources, toInstall, projectContext);
@@ -263,10 +263,13 @@ namespace NuGet.VisualStudio
                         };
                         Task<NuGetProject> getNuGetProjectAsync(IVsSolutionManager vsSolutionManager) => GetNuGetProjectAsync(vsSolutionManager, project, projectContext);
 
-                        await InstallInternalAsync(
+                        await PackageServiceUtilities.InstallInternalAsync(
                             getNuGetProjectAsync,
                             toInstall,
                             repoProvider,
+                            _solutionManager,
+                            _settings,
+                            _deleteOnRestartManager,
                             projectContext,
                             includePrerelease: false,
                             ignoreDependencies: ignoreDependencies,
@@ -330,10 +333,13 @@ namespace NuGet.VisualStudio
                         };
 
                         Task<NuGetProject> getNuGetProjectAsync(IVsSolutionManager vsSolutionManager) => GetNuGetProjectAsync(vsSolutionManager, project, projectContext);
-                        return InstallInternalAsync(
+                        return PackageServiceUtilities.InstallInternalAsync(
                             getNuGetProjectAsync,
                             toInstall,
                             repoProvider,
+                            _solutionManager,
+                            _settings,
+                            _deleteOnRestartManager,
                             projectContext,
                             includePrerelease: false,
                             ignoreDependencies: ignoreDependencies,
@@ -424,127 +430,11 @@ namespace NuGet.VisualStudio
         }
 
         /// <summary>
-        /// Internal install method. All installs from the VS API and template wizard end up here.
-        /// </summary>
-        internal async Task InstallInternalAsync(
-            Func<IVsSolutionManager, Task<NuGetProject>> getProjectAsync,
-            List<PackageIdentity> packages,
-            ISourceRepositoryProvider repoProvider,
-            VSAPIProjectContext projectContext,
-            bool includePrerelease,
-            bool ignoreDependencies,
-            CancellationToken token)
-        {
-            // Go off the UI thread. This may be called from the UI thread. Only switch to the UI thread where necessary
-            // This method installs multiple packages and can likely take more than a few secs
-            // So, go off the UI thread explicitly to improve responsiveness
-            await TaskScheduler.Default;
-
-            var gatherCache = new GatherCache();
-            var sources = repoProvider.GetRepositories().ToList();
-
-            // store expanded node state
-            var expandedNodes = await VsHierarchyUtility.GetAllExpandedNodesAsync();
-
-            try
-            {
-                var depBehavior = ignoreDependencies ? DependencyBehavior.Ignore : DependencyBehavior.Lowest;
-
-                var packageManager = CreatePackageManager(repoProvider);
-
-                // Get the project
-                NuGetProject nuGetProject = await getProjectAsync(_solutionManager);
-
-                var packageManagementFormat = new PackageManagementFormat(_settings);
-                // 1 means PackageReference
-                var preferPackageReference = packageManagementFormat.SelectedPackageManagementFormat == 1;
-
-                // Check if default package format is set to `PackageReference` and project has no
-                // package installed yet then upgrade it to `PackageReference` based project.
-                if (preferPackageReference &&
-                   (nuGetProject is MSBuildNuGetProject) &&
-                   !(await nuGetProject.GetInstalledPackagesAsync(token)).Any() &&
-                   await NuGetProjectUpgradeUtility.IsNuGetProjectUpgradeableAsync(nuGetProject, needsAPackagesConfig: false))
-                {
-                    nuGetProject = await _solutionManager.UpgradeProjectToPackageReferenceAsync(nuGetProject);
-                }
-
-                // install the package
-                foreach (var package in packages)
-                {
-                    var installedPackages = await nuGetProject.GetInstalledPackagesAsync(CancellationToken.None);
-                    if (PackageServiceUtilities.IsPackageInList(installedPackages, package.Id, package.Version))
-                    {
-                        continue;
-                    }
-
-                    // Perform the install
-                    await InstallInternalCoreAsync(
-                        packageManager,
-                        gatherCache,
-                        nuGetProject,
-                        package,
-                        sources,
-                        projectContext,
-                        includePrerelease,
-                        ignoreDependencies,
-                        token);
-                }
-            }
-            finally
-            {
-                // collapse nodes
-                await VsHierarchyUtility.CollapseAllNodesAsync(expandedNodes);
-            }
-        }
-
-        /// <summary>
-        /// Core install method. All installs from the VS API and template wizard end up here.
-        /// This does not check for already installed packages
-        /// </summary>
-        internal async Task InstallInternalCoreAsync(
-            NuGetPackageManager packageManager,
-            GatherCache gatherCache,
-            NuGetProject nuGetProject,
-            PackageIdentity package,
-            IEnumerable<SourceRepository> sources,
-            VSAPIProjectContext projectContext,
-            bool includePrerelease,
-            bool ignoreDependencies,
-            CancellationToken token)
-        {
-            await TaskScheduler.Default;
-
-            var depBehavior = ignoreDependencies ? DependencyBehavior.Ignore : DependencyBehavior.Lowest;
-
-            using (var sourceCacheContext = new SourceCacheContext())
-            {
-                var resolution = new ResolutionContext(
-                    depBehavior,
-                    includePrerelease,
-                    includeUnlisted: false,
-                    versionConstraints: VersionConstraints.None,
-                    gatherCache: gatherCache,
-                    sourceCacheContext: sourceCacheContext);
-
-                // install the package
-                if (package.Version == null)
-                {
-                    await packageManager.InstallPackageAsync(nuGetProject, package.Id, resolution, projectContext, sources, Enumerable.Empty<SourceRepository>(), token);
-                }
-                else
-                {
-                    await packageManager.InstallPackageAsync(nuGetProject, package, resolution, projectContext, sources, Enumerable.Empty<SourceRepository>(), token);
-                }
-            }
-        }
-
-        /// <summary>
         /// Create a new NuGetPackageManager with the IVsPackageInstaller settings.
         /// </summary>
         internal NuGetPackageManager CreatePackageManager(ISourceRepositoryProvider repoProvider)
         {
-            return new NuGetPackageManager(
+            return PackageServiceUtilities.CreatePackageManager(
                 repoProvider,
                 _settings,
                 _solutionManager,

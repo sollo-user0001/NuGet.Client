@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using NuGet.Common;
@@ -14,8 +15,10 @@ using NuGet.Configuration;
 using NuGet.PackageManagement.VisualStudio;
 using NuGet.PackageManagement.VisualStudio.Exceptions;
 using NuGet.Packaging;
+using NuGet.Packaging.Core;
 using NuGet.ProjectManagement;
 using NuGet.ProjectManagement.Projects;
+using NuGet.Versioning;
 using NuGet.VisualStudio.Contracts;
 using NuGet.VisualStudio.Telemetry;
 using Task = System.Threading.Tasks.Task;
@@ -79,37 +82,29 @@ namespace NuGet.VisualStudio.Implementation.Extensibility
 
         public Task InstallLatestPackageAsync(Guid projectId, string source, string packageId, bool includePrerelease, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return InstallPackageAsync(source, projectId, packageId, null, includePrerelease, cancellationToken);
         }
 
         public Task InstallPackageAsync(Guid projectId, string source, string packageId, string version, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _ = NuGetVersion.TryParse(version, out NuGetVersion nuGetVersion);
+            return InstallPackageAsync(source, projectId, packageId, nuGetVersion, includePrerelease: false, cancellationToken);
         }
 
-        //public async Task InstallPackageAsync(string source, string projectUniqueName, string packageId, string version, CancellationToken cancellationToken)
-        //{
-        //    cancellationToken.ThrowIfCancellationRequested();
+        private Task InstallPackageAsync(string source, Guid projectId, string packageId, NuGetVersion version, bool includePrerelease, CancellationToken cancellationToken)
+        {
+            // TODO NK - Run it with the correct context.
+            (IEnumerable<string> sources, List<PackageIdentity> toInstall, VSAPIProjectContext projectContext) = VsPackageInstaller.PrepForInstallation(_settings, source, packageId, version, isAllRespected: false);
+            Task<NuGetProject> getNuGetProjectAsync(IVsSolutionManager vsSolutionManager) => GetNuGetProjectAsync(vsSolutionManager, projectId);
+            return PackageServiceUtilities.InstallInternalAsync(getNuGetProjectAsync, toInstall,
+                null, //GetSources(sources),
+                _solutionManager, _settings, deleteOnRestartManager: null, projectContext, includePrerelease, ignoreDependencies: false, cancellationToken);
+        }
 
-        //    NuGetVersion nugetVersion = null;
-        //    if (version != null)
-        //    {
-        //        _ = NuGetVersion.TryParse(version, out nugetVersion);
-        //    }
-        //    // TODO NK - Make sure all the exceptions are covered, and enumerated.
-        //    await RunJTFWithCorrectContextAsync(
-        //        projectUniqueName,
-        //        () => InstallPackageAsync(source, projectUniqueName, packageId, nugetVersion, includePrerelease: true, ignoreDependencies: false));
-        //}
-
-        //public async Task InstallLatestPackageAsync(string source, string projectUniqueName, string packageId, bool includePrerelease, CancellationToken cancellationToken)
-        //{
-        //    cancellationToken.ThrowIfCancellationRequested();
-
-        //    await RunJTFWithCorrectContextAsync(
-        //        projectUniqueName,
-        //        () => InstallPackageAsync(source, projectUniqueName, packageId, version: null, includePrerelease: includePrerelease, ignoreDependencies: false));
-        //}
+        private static async Task<NuGetProject> GetNuGetProjectAsync(IVsSolutionManager vsSolutionManager, Guid projectId)
+        {
+            return await vsSolutionManager.GetNuGetProjectAsync(projectId.ToString());
+        }
 
         private async Task<(InstalledPackageResultStatus, IReadOnlyCollection<NuGetInstalledPackage>)> GetInstalledPackagesAsync(BuildIntegratedNuGetProject project, CancellationToken cancellationToken)
         {
