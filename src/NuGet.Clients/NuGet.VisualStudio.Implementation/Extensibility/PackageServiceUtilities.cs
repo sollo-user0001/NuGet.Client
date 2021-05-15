@@ -120,7 +120,6 @@ namespace NuGet.VisualStudio
             // So, go off the UI thread explicitly to improve responsiveness
             await TaskScheduler.Default;
 
-            var gatherCache = new GatherCache();
             var sources = repoProvider.GetRepositories().ToList();
 
             // store expanded node state
@@ -161,7 +160,7 @@ namespace NuGet.VisualStudio
                     // Perform the install
                     await InstallInternalCoreAsync(
                         packageManager,
-                        gatherCache,
+                        new GatherCache(),
                         nuGetProject,
                         package,
                         sources,

@@ -18,6 +18,7 @@ using NuGet.Packaging;
 using NuGet.Packaging.Core;
 using NuGet.ProjectManagement;
 using NuGet.ProjectManagement.Projects;
+using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 using NuGet.VisualStudio.Contracts;
 using NuGet.VisualStudio.Telemetry;
@@ -82,23 +83,33 @@ namespace NuGet.VisualStudio.Implementation.Extensibility
 
         public Task InstallLatestPackageAsync(Guid projectId, string source, string packageId, bool includePrerelease, CancellationToken cancellationToken)
         {
-            return InstallPackageAsync(source, projectId, packageId, null, includePrerelease, cancellationToken);
+            return InstallPackageAsync(projectId, packageId, null, includePrerelease, cancellationToken);
         }
 
         public Task InstallPackageAsync(Guid projectId, string source, string packageId, string version, CancellationToken cancellationToken)
         {
             _ = NuGetVersion.TryParse(version, out NuGetVersion nuGetVersion);
-            return InstallPackageAsync(source, projectId, packageId, nuGetVersion, includePrerelease: false, cancellationToken);
+            return InstallPackageAsync(projectId, packageId, nuGetVersion, includePrerelease: false, cancellationToken);
         }
 
-        private Task InstallPackageAsync(string source, Guid projectId, string packageId, NuGetVersion version, bool includePrerelease, CancellationToken cancellationToken)
+        private Task InstallPackageAsync(Guid projectId, string packageId, NuGetVersion version, bool includePrerelease, CancellationToken cancellationToken)
         {
             // TODO NK - Run it with the correct context.
-            (IEnumerable<string> sources, List<PackageIdentity> toInstall, VSAPIProjectContext projectContext) = VsPackageInstaller.PrepForInstallation(_settings, source, packageId, version, isAllRespected: false);
+            (IEnumerable<string> sources, List<PackageIdentity> toInstall, VSAPIProjectContext projectContext) = VsPackageInstaller.PrepForInstallation(_settings, null, packageId, version, isAllRespected: false);
             Task<NuGetProject> getNuGetProjectAsync(IVsSolutionManager vsSolutionManager) => GetNuGetProjectAsync(vsSolutionManager, projectId);
-            return PackageServiceUtilities.InstallInternalAsync(getNuGetProjectAsync, toInstall,
-                null, //GetSources(sources),
-                _solutionManager, _settings, deleteOnRestartManager: null, projectContext, includePrerelease, ignoreDependencies: false, cancellationToken);
+            ISourceRepositoryProvider sourceRepositoryProvider = null;
+
+            return PackageServiceUtilities.InstallInternalAsync(
+                getNuGetProjectAsync,
+                toInstall,
+                sourceRepositoryProvider,
+                _solutionManager,
+                _settings,
+                deleteOnRestartManager: null,
+                projectContext,
+                includePrerelease,
+                ignoreDependencies: false,
+                cancellationToken);
         }
 
         private static async Task<NuGetProject> GetNuGetProjectAsync(IVsSolutionManager vsSolutionManager, Guid projectId)
