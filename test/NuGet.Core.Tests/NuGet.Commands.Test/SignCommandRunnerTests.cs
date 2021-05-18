@@ -171,7 +171,7 @@ namespace NuGet.Commands.Test
                 File.WriteAllBytes(certificateFilePath, bytes);
 
                 testContext.Args.CertificatePath = certificateFilePath;
-                testContext.Args.CertificatePassword = "incorrect password";
+                testContext.Args.CertificatePassword = "PlaceholderPassword";
 
                 testContext.Args.SignatureHashAlgorithm = HashAlgorithmName.SHA256;
                 testContext.Args.TimestampHashAlgorithm = HashAlgorithmName.SHA256;
