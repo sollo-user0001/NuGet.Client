@@ -316,7 +316,8 @@ namespace NuGet.Commands
         private static void AddContentFiles(RestoreTargetGraph targetGraph, LockFileTargetLibrary lockFileLib, NuGetFramework framework, ContentItemCollection contentItems, NuspecReader nuspec)
         {
             // content v2 items
-            var contentFileGroups = contentItems.FindItemGroups(targetGraph.Conventions.Patterns.ContentFiles).ToList();
+            List<ContentItemGroup> contentFileGroups = new();
+            contentItems.FindItemGroups(targetGraph.Conventions.Patterns.ContentFiles, contentFileGroups);
 
             if (contentFileGroups.Count > 0)
             {
@@ -929,7 +930,8 @@ namespace NuGet.Commands
             PatternSet patternSet,
             string assetType)
         {
-            var groups = contentItems.FindItemGroups(patternSet).ToList();
+            List<ContentItemGroup> groups = new List<ContentItemGroup>();
+            contentItems.FindItemGroups(patternSet, groups);
 
             var groupsForFramework = GetContentGroupsForFramework(
                 framework,

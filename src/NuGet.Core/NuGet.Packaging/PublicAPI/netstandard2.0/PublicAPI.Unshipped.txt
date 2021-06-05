@@ -1,3 +1,4 @@
+NuGet.ContentModel.ContentItemCollection.FindItemGroups(NuGet.ContentModel.PatternSet definition, System.Collections.Generic.IList<NuGet.ContentModel.ContentItemGroup> contentItemGroupList) -> void
 NuGet.Packaging.ManifestMetadata.EmitRequireLicenseAcceptance.get -> bool
 NuGet.Packaging.ManifestMetadata.EmitRequireLicenseAcceptance.set -> void
 NuGet.Packaging.PackageBuilder.EmitRequireLicenseAcceptance.get -> bool

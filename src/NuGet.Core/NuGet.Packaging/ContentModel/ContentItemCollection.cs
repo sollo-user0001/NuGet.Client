@@ -46,12 +46,7 @@ namespace NuGet.ContentModel
             }
         }
 
-        public IEnumerable<ContentItem> FindItems(PatternSet definition)
-        {
-            return FindItemsImplementation(definition, _assets);
-        }
-
-        public IEnumerable<ContentItemGroup> FindItemGroups(PatternSet definition)
+        public void FindItemGroups(PatternSet definition, IList<ContentItemGroup> contentItemGroupList)
         {
             if (_assets.Count > 0)
             {
@@ -86,12 +81,8 @@ namespace NuGet.ContentModel
                             group.Properties.Add(property.Key, property.Value);
                         }
 
-                        foreach (var item in FindItemsImplementation(definition, grouping.Select(match => match.Item2)))
-                        {
-                            group.Items.Add(item);
-                        }
-
-                        yield return group;
+                        FindItemsImplementation(definition, grouping.Select(match => match.Item2), group.Items);
+                        contentItemGroupList.Add(group);
                     }
                 }
             }
@@ -104,9 +95,16 @@ namespace NuGet.ContentModel
 
         public ContentItemGroup FindBestItemGroup(SelectionCriteria criteria, params PatternSet[] definitions)
         {
+            if (definitions.Length == 0)
+            {
+                return null;
+            }
+
+            List<ContentItemGroup> itemGroups = new List<ContentItemGroup>();
             foreach (var definition in definitions)
             {
-                var itemGroups = FindItemGroups(definition).ToList();
+                itemGroups.Clear();
+                FindItemGroups(definition, itemGroups);
                 foreach (var criteriaEntry in criteria.Entries)
                 {
                     ContentItemGroup bestGroup = null;
@@ -198,7 +196,7 @@ namespace NuGet.ContentModel
             return null;
         }
 
-        private IEnumerable<ContentItem> FindItemsImplementation(PatternSet definition, IEnumerable<Asset> assets)
+        private void FindItemsImplementation(PatternSet definition, IEnumerable<Asset> assets, IList<ContentItem> itemsList)
         {
             var pathPatterns = definition.PathExpressions;
 
@@ -211,7 +209,7 @@ namespace NuGet.ContentModel
                     var contentItem = pathPattern.Match(path, definition.PropertyDefinitions);
                     if (contentItem != null)
                     {
-                        yield return contentItem;
+                        itemsList.Add(contentItem);
                         break;
                     }
                 }
