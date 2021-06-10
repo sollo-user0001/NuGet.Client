@@ -1,0 +1,19 @@
+steps:
+- task: PowerShell@2
+  displayName: "Update Build Number"
+  inputs:
+    targetType: "inline"
+    script: |
+      Write-Host "##vso[build.updatebuildnumber]$env:FULLVSTSBUILDNUMBER"
+    failOnStderr: "true"
+  condition: "always()"
+
+- task: MSBuild@1
+  displayName: "Build source-build"
+  inputs:
+    solution: "eng\\source-build\\source-build.proj"
+    msbuildVersion: "16.0"
+    configuration: "$(BuildConfiguration)"
+    msbuildArguments: "/p:BuildNumber=$(BuildNumber) /p:BuildRTM=$(BuildRTM) /v:m"
+    maximumCpuCount: true
+
