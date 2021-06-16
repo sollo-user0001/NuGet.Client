@@ -1,1 +1,2 @@
 #nullable enable
+NuGet.VisualStudio.Internal.Contracts.INuGetProjectManagerService.GetDirectFromTransitivePackageAsync(NuGet.Packaging.Core.PackageIdentity! transitivePackage, string! projectId, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.ValueTask<NuGet.VisualStudio.Internal.Contracts.IInstalledAndTransitivePackages!>
