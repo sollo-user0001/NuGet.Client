@@ -3291,7 +3291,7 @@ namespace NuGet.PackageManagement.VisualStudio.Test
                     projectId: projectName);
         }
 
-        private CpsPackageReferenceProject CreateCpsPackageReferenceProject(string projectName, string projectFullPath, ProjectSystemCache projectSystemCache)
+        internal static CpsPackageReferenceProject CreateCpsPackageReferenceProject(string projectName, string projectFullPath, ProjectSystemCache projectSystemCache)
         {
             var projectServices = new TestProjectSystemServices();
 
@@ -3305,7 +3305,7 @@ namespace NuGet.PackageManagement.VisualStudio.Test
                     projectId: projectName);
         }
 
-        private ProjectNames GetTestProjectNames(string projectPath, string projectUniqueName)
+        internal static ProjectNames GetTestProjectNames(string projectPath, string projectUniqueName)
         {
             var projectNames = new ProjectNames(
             fullName: projectPath,
@@ -3316,7 +3316,7 @@ namespace NuGet.PackageManagement.VisualStudio.Test
             return projectNames;
         }
 
-        private static PackageSpec GetPackageSpec(string projectName, string testDirectory, string version)
+        internal static PackageSpec GetPackageSpec(string projectName, string testDirectory, string version)
         {
             string referenceSpec = $@"
                 {{
