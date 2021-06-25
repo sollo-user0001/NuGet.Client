@@ -107,10 +107,8 @@ namespace NuGet.PackageManagement.VisualStudio
             {
                 await TaskScheduler.Default;
                 LockFile lockFile = LockFileUtilities.GetLockFile(assetsFilePath, NullLogger.Instance);
-                if (!(lockFile is null))
-                {
-                    return lockFile.Targets;
-                }
+
+                return lockFile?.Targets;
             }
 
             return null;
