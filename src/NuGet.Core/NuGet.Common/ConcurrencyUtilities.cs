@@ -19,7 +19,38 @@ namespace NuGet.Common
         // To maintain SHA-1 backwards compatibility with respect to the length of the hex-encoded hash, the hash will be truncated to a length of 20 bytes.
         private const int HashLength = 20;
         private static readonly TimeSpan SleepDuration = TimeSpan.FromMilliseconds(10);
+        private static Mutex GlobalMutex;
+        private static bool UseDeleteOnClose;
         private static readonly KeyedLock PerFileLock = new KeyedLock();
+
+        static ConcurrencyUtilities()
+        {
+            // On Non-Windows platforms we use a global mutex for synchronization.
+            //
+            // On Windows opening and locking the file are performed atomically,
+            // and DeleteOnClose deletes the file when there are no more open handles.
+            //
+            // On Unix this locking is not implemented atomically, and DeleteOnClose
+            // deletes ('unlink') the file as soon as the Handle is closed.
+            //
+            // The following example shows how deleting the file in Process 1
+            // allows both Process 2 and Process 3 to obtain a lock because they open
+            // different file entries.
+            //
+            // Process 1    Process 2   Process 3
+            //   open
+            //   lock         open
+            //   unlink
+            //   unlock                   open
+            //   close
+            //                lock        lock
+
+            UseDeleteOnClose = RuntimeEnvironmentHelper.IsWindows;
+            if (!UseDeleteOnClose)
+            {
+                GlobalMutex = new Mutex(false, "Global\\NuGet.Common.ConcurrencyUtilities");
+            }
+        }
 
         public async static Task<T> ExecuteWithFileLockedAsync<T>(string filePath,
             Func<CancellationToken, Task<T>> action,
@@ -99,8 +130,20 @@ namespace NuGet.Common
                     {
                         if (fs != null)
                         {
-                            // Dispose of the stream, this will cause a delete
-                            fs.Dispose();
+                            EnterGlobalMutex();
+                            try
+                            {
+                                if (!UseDeleteOnClose)
+                                {
+                                    File.Delete(fs.Name);
+                                }
+                                // Dispose of the stream, this will cause a delete
+                                fs.Dispose();
+                            }
+                            finally
+                            {
+                                ExitGlobalMutex();
+                            }
                         }
                     }
                 }
@@ -186,8 +229,23 @@ namespace NuGet.Common
                     }
                     finally
                     {
-                        // Dispose of the stream, this will cause a delete
-                        fs?.Dispose();
+                        if (fs != null)
+                        {
+                            EnterGlobalMutex();
+                            try
+                            {
+                                if (!UseDeleteOnClose)
+                                {
+                                    File.Delete(fs.Name);
+                                }
+                                // Dispose of the stream, this will cause a delete
+                                fs.Dispose();
+                            }
+                            finally
+                            {
+                                ExitGlobalMutex();
+                            }
+                        }
                     }
                 }
             }
@@ -199,26 +257,22 @@ namespace NuGet.Common
 
         private static FileStream AcquireFileStream(string lockPath)
         {
-            FileOptions options;
-            if (RuntimeEnvironmentHelper.IsWindows)
+            EnterGlobalMutex();
+            try
             {
-                // This file is deleted when the stream is closed.
-                options = FileOptions.DeleteOnClose;
+                // Sync operations have shown much better performance than FileOptions.Asynchronous
+                return new FileStream(
+                    lockPath,
+                    FileMode.OpenOrCreate,
+                    FileAccess.ReadWrite,
+                    FileShare.None,
+                    bufferSize: 32,
+                    UseDeleteOnClose ? FileOptions.DeleteOnClose : FileOptions.None);
             }
-            else
+            finally
             {
-                // FileOptions.DeleteOnClose causes concurrency issues on Mac OS X and Linux.
-                options = FileOptions.None;
+                ExitGlobalMutex();
             }
-
-            // Sync operations have shown much better performance than FileOptions.Asynchronous
-            return new FileStream(
-                lockPath,
-                FileMode.OpenOrCreate,
-                FileAccess.ReadWrite,
-                FileShare.None,
-                bufferSize: 32,
-                options: options);
         }
 
         private static string _basePath;
@@ -264,6 +318,16 @@ namespace NuGet.Common
 
                 return EncodingUtility.ToHex(hash, HashLength);
             }
+        }
+
+        private static void EnterGlobalMutex()
+        {
+            GlobalMutex?.WaitOne();
+        }
+
+        private static void ExitGlobalMutex()
+        {
+            GlobalMutex?.ReleaseMutex();
         }
     }
 }
