@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EnvDTE;
 using Microsoft;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
@@ -180,23 +179,11 @@ namespace NuGet.PackageManagement.VisualStudio
 
             var frameworkSorter = new NuGetFrameworkSorter();
 
-            string assetsFilePath = await GetAssetsFilePathAsync();
-            var fileInfo = new FileInfo(assetsFilePath);
-            IList<LockFileTarget> targets = default;
-
-            if (fileInfo.Exists && fileInfo.LastWriteTimeUtc > _lastTimeAssetsModified)
+            (var targets, var isCacheHit) = await GetFullRestoreGraphAsync(token);
+            if (!isCacheHit)
             {
-                await TaskScheduler.Default;
-                LockFile lockFile = LockFileUtilities.GetLockFile(assetsFilePath, NullLogger.Instance);
-                if (!(lockFile is null))
-                {
-                    targets = lockFile.Targets;
-
-                    _lastTimeAssetsModified = fileInfo.LastWriteTimeUtc;
-
-                    // clear the transitive packages cache, since we don't know when a dependency has been removed
-                    _transitivePackages.Clear();
-                }
+                // clear the transitive packages cache, since we don't know when a dependency has been removed
+                _transitivePackages.Clear();
             }
 
             // get the installed packages
