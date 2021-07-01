@@ -21,6 +21,7 @@ namespace NuGet.Common
         private static readonly TimeSpan SleepDuration = TimeSpan.FromMilliseconds(10);
         private static Mutex GlobalMutex;
         private static bool UseDeleteOnClose;
+        private static bool ManualDeleteOnClose;
         private static readonly KeyedLock PerFileLock = new KeyedLock();
 
         static ConcurrencyUtilities()
@@ -48,7 +49,16 @@ namespace NuGet.Common
             UseDeleteOnClose = RuntimeEnvironmentHelper.IsWindows;
             if (!UseDeleteOnClose)
             {
-                GlobalMutex = new Mutex(false, "Global\\NuGet.Common.ConcurrencyUtilities");
+                // We need to remain compatible with older SDKS that are still supported.
+                // That means we can really remove lock files when .NET Core 3.1 is EOL on December 3, 2022.
+                // The removing can already be enabled by setting 'NUGET_ConcurrencyUtils_DeleteOnClose' to '1'.
+                // Setting it to 'NoMutex' allows to opt-out of using the GlobalMutex.
+                string NUGET_ConcurrencyUtils_DeleteOnClose = Environment.GetEnvironmentVariable("NUGET_ConcurrencyUtils_DeleteOnClose");
+                if (NUGET_ConcurrencyUtils_DeleteOnClose != "NoMutex")
+                {
+                    GlobalMutex = new Mutex(false, "Global\\NuGet.ConcurrencyUtilities.DeleteOnClose");
+                    ManualDeleteOnClose = NUGET_ConcurrencyUtils_DeleteOnClose == "1";
+                }
             }
         }
 
@@ -133,7 +143,7 @@ namespace NuGet.Common
                             EnterGlobalMutex();
                             try
                             {
-                                if (!UseDeleteOnClose)
+                                if (ManualDeleteOnClose)
                                 {
                                     File.Delete(fs.Name);
                                 }
@@ -234,7 +244,7 @@ namespace NuGet.Common
                             EnterGlobalMutex();
                             try
                             {
-                                if (!UseDeleteOnClose)
+                                if (ManualDeleteOnClose)
                                 {
                                     File.Delete(fs.Name);
                                 }

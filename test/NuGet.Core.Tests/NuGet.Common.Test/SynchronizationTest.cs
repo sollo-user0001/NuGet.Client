@@ -18,6 +18,12 @@ namespace NuGet.Common.Test
         private int _value2 = 0;
         private SemaphoreSlim _waitForEverStarted = new SemaphoreSlim(0, 1);
 
+        public SynchronizationTests()
+        {
+            // Delete lock files also on non-Windows platforms.
+            Environment.SetEnvironmentVariable("NUGET_ConcurrencyUtils_DeleteOnClose", "1");
+        }
+
         private readonly int DefaultTimeOut = (int)TimeSpan.FromMinutes(5).TotalMilliseconds;
 
         [Fact]
