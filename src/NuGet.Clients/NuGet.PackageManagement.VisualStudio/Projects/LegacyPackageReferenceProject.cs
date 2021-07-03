@@ -188,14 +188,14 @@ namespace NuGet.PackageManagement.VisualStudio
             // get the installed packages
             IEnumerable<PackageReference> installedPackages = reading.PackageSpec
                .TargetFrameworks
-               .SelectMany(f => GetPackageReferences(f.Dependencies, f.FrameworkName, _installedPackages, reading.TargetsList.ToList()))
+               .SelectMany(f => GetPackageReferences(f.Dependencies, f.FrameworkName, _installedPackages, reading.TargetsList?.ToList()))
                .GroupBy(p => p.PackageIdentity)
                .Select(g => g.OrderBy(p => p.TargetFramework, frameworkSorter).First());
 
             // get the transitive packages, excluding any already contained in the installed packages
             IEnumerable<PackageReference> transitivePackages = reading.PackageSpec
                .TargetFrameworks
-               .SelectMany(f => GetTransitivePackageReferences(f.FrameworkName, _installedPackages, _transitivePackages, reading.TargetsList.ToList()))
+               .SelectMany(f => GetTransitivePackageReferences(f.FrameworkName, _installedPackages, _transitivePackages, reading.TargetsList?.ToList()))
                .GroupBy(p => p.PackageIdentity)
                .Select(g => g.OrderBy(p => p.TargetFramework, frameworkSorter).First());
 
@@ -468,6 +468,11 @@ namespace NuGet.PackageManagement.VisualStudio
             ct.ThrowIfCancellationRequested();
 
             return await GetPackageSpecAsync(NullSettings.Instance);
+        }
+
+        internal override bool IsCacheHit(bool cacheHitTargets, bool cacheHitPackageSpec, PackageSpec actual, PackageSpec last, FileInfo assets)
+        {
+            return (assets.Exists && assets.LastWriteTimeUtc > _lastTimeAssetsModified) || !cacheHitTargets || !cacheHitPackageSpec;
         }
     }
 }
