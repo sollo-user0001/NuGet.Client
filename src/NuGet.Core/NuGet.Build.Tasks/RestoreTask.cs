@@ -63,7 +63,7 @@ namespace NuGet.Build.Tasks
         public bool Interactive { get; set; }
 
         /// <summary>
-        /// Reevaluate resotre graph even with a lock file, skip no op as well.
+        /// Reevaluate the restore graph even with a lock file, skip no op as well.
         /// </summary>
         public bool RestoreForceEvaluate { get; set; }
 
@@ -92,6 +92,7 @@ namespace NuGet.Build.Tasks
             log.LogDebug($"(in) RestoreRecursive '{RestoreRecursive}'");
             log.LogDebug($"(in) RestoreForce '{RestoreForce}'");
             log.LogDebug($"(in) HideWarningsAndErrors '{HideWarningsAndErrors}'");
+            log.LogDebug($"(in) Interactive '{Interactive}'");
             log.LogDebug($"(in) RestoreForceEvaluate '{RestoreForceEvaluate}'");
             log.LogDebug($"(in) RestorePackagesConfig '{RestorePackagesConfig}'");
 

@@ -28,7 +28,6 @@ namespace NuGet.Commands
         private readonly object _lock = new object();
         private readonly SourceRepository _sourceRepository;
         private readonly ILogger _logger;
-        private readonly SourceCacheContext _cacheContext;
         private readonly LocalPackageFileCache _packageFileCache;
         private FindPackageByIdResource _findPackagesByIdResource;
         private bool _ignoreFailedSources;
@@ -78,41 +77,25 @@ namespace NuGet.Commands
         /// </summary>
         /// <param name="sourceRepository">A source repository.</param>
         /// <param name="logger">A logger.</param>
-        /// <param name="cacheContext">A source cache context.</param>
+        /// <param name="_">A source cache context.</param>
         /// <param name="ignoreFailedSources"><c>true</c> to ignore failed sources; otherwise <c>false</c>.</param>
         /// <param name="ignoreWarning"><c>true</c> to ignore warnings; otherwise <c>false</c>.</param>
         /// <param name="fileCache">Optional nuspec/file cache.</param>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="sourceRepository" />
         /// is <c>null</c>.</exception>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="logger" /> is <c>null</c>.</exception>
-        /// <exception cref="ArgumentNullException">Thrown if <paramref name="cacheContext" /> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="_" /> is <c>null</c>.</exception>
         public SourceRepositoryDependencyProvider(
         SourceRepository sourceRepository,
         ILogger logger,
-        SourceCacheContext cacheContext,
+        SourceCacheContext _,
         bool ignoreFailedSources,
         bool ignoreWarning,
         LocalPackageFileCache fileCache,
         bool isFallbackFolderSource)
         {
-            if (sourceRepository == null)
-            {
-                throw new ArgumentNullException(nameof(sourceRepository));
-            }
-
-            if (logger == null)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-
-            if (cacheContext == null)
-            {
-                throw new ArgumentNullException(nameof(cacheContext));
-            }
-
-            _sourceRepository = sourceRepository;
-            _logger = logger;
-            _cacheContext = cacheContext;
+            _sourceRepository = sourceRepository ?? throw new ArgumentNullException(nameof(sourceRepository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _ignoreFailedSources = ignoreFailedSources;
             _ignoreWarning = ignoreWarning;
             _packageFileCache = fileCache;
@@ -362,9 +345,26 @@ namespace NuGet.Commands
                     packageInfo.PackageIdentity.Version,
                     match.Type);
 
-                var dependencies = GetDependencies(packageInfo, targetFramework);
+                var dependencyGroup = NuGetFrameworkUtility.GetNearest(packageInfo.DependencyGroups,
+                    targetFramework,
+                    item => item.TargetFramework);
 
-                return LibraryDependencyInfo.Create(originalIdentity, targetFramework, dependencies);
+                bool assetTargetFallbackUsed = false;
+                // FrameworkReducer.GetNearest does not consider ATF since it is used for more than just compat
+                if (dependencyGroup == null &&
+                    targetFramework is AssetTargetFallbackFramework assetTargetFallbackFramework)
+                {
+                    dependencyGroup = NuGetFrameworkUtility.GetNearest(packageInfo.DependencyGroups,
+                        assetTargetFallbackFramework.AsFallbackFramework(),
+                        item => item.TargetFramework);
+                    assetTargetFallbackUsed = dependencyGroup != null;
+                }
+
+                var dependencies = dependencyGroup != null ?
+                     dependencyGroup.Packages.Select(PackagingUtility.GetLibraryDependencyFromNuspec).ToArray() :
+                     Enumerable.Empty<LibraryDependency>();
+
+                return LibraryDependencyInfo.Create(originalIdentity, targetFramework, dependencies, assetTargetFallbackUsed);
             }
         }
 

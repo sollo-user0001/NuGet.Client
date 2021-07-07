@@ -127,10 +127,12 @@ namespace NuGet.DependencyResolver
 
             var library = _dependencyProvider.GetLibrary(libraryIdentity, targetFramework);
 
+            // This is the local provider, so if the dependencies were resolved with ATF, MSBuild would be the one raising the ATF warning back calling int our tasks.
             var dependencyInfo = LibraryDependencyInfo.Create(
                 library.Identity,
                 targetFramework,
-                library.Dependencies);
+                library.Dependencies,
+                usedATFForDependencies: false);
 
             return Task.FromResult(dependencyInfo);
         }

@@ -36,8 +36,8 @@ namespace NuGet.DependencyResolver.Core.Tests
             var actualIdentity = new LibraryIdentity("x", NuGetVersion.Parse("1.0.0-beta.1"), LibraryType.Package);
             var higherIdentity = new LibraryIdentity("x", NuGetVersion.Parse("1.0.0-beta.2"), LibraryType.Package);
             var dependencies = new[] { new LibraryDependency() { LibraryRange = new LibraryRange("y", VersionRange.All, LibraryDependencyTarget.Package) } };
-            var dependencyInfo = LibraryDependencyInfo.Create(actualIdentity, framework, dependencies);
-            var dependencyInfo2 = LibraryDependencyInfo.Create(higherIdentity, framework, dependencies);
+            var dependencyInfo = LibraryDependencyInfo.Create(actualIdentity, framework, dependencies, false);
+            var dependencyInfo2 = LibraryDependencyInfo.Create(higherIdentity, framework, dependencies, false);
 
             var downloadCount = 0;
 
@@ -85,7 +85,7 @@ namespace NuGet.DependencyResolver.Core.Tests
             var edge = new GraphEdge<RemoteResolveResult>(null, null, null);
             var actualIdentity = new LibraryIdentity("x", NuGetVersion.Parse("1.0.0-beta"), LibraryType.Package);
             var dependencies = new[] { new LibraryDependency() { LibraryRange = new LibraryRange("y", VersionRange.All, LibraryDependencyTarget.Package) } };
-            var dependencyInfo = LibraryDependencyInfo.Create(actualIdentity, framework, dependencies);
+            var dependencyInfo = LibraryDependencyInfo.Create(actualIdentity, framework, dependencies, false);
 
             var remoteProvider = new Mock<IRemoteDependencyProvider>();
             remoteProvider.Setup(e => e.FindLibraryAsync(range, framework, It.IsAny<SourceCacheContext>(), testLogger, token))
@@ -126,7 +126,7 @@ namespace NuGet.DependencyResolver.Core.Tests
             var edge = new GraphEdge<RemoteResolveResult>(null, null, null);
             var actualIdentity = new LibraryIdentity("x", NuGetVersion.Parse("1.0.0-beta"), LibraryType.Package);
             var dependencies = new[] { new LibraryDependency() { LibraryRange = new LibraryRange("y", VersionRange.All, LibraryDependencyTarget.Package) } };
-            var dependencyInfo = LibraryDependencyInfo.Create(actualIdentity, framework, dependencies);
+            var dependencyInfo = LibraryDependencyInfo.Create(actualIdentity, framework, dependencies, false);
 
             var remoteProvider = new Mock<IRemoteDependencyProvider>();
             remoteProvider.Setup(e => e.FindLibraryAsync(range, framework, It.IsAny<SourceCacheContext>(), testLogger, token))
@@ -162,7 +162,7 @@ namespace NuGet.DependencyResolver.Core.Tests
             var edge = new GraphEdge<RemoteResolveResult>(null, null, null);
             var actualIdentity = new LibraryIdentity("X", NuGetVersion.Parse("1.0.0-bEta"), LibraryType.Package);
             var dependencies = new[] { new LibraryDependency() { LibraryRange = new LibraryRange("y", VersionRange.All, LibraryDependencyTarget.Package) } };
-            var dependencyInfo = LibraryDependencyInfo.Create(actualIdentity, framework, dependencies);
+            var dependencyInfo = LibraryDependencyInfo.Create(actualIdentity, framework, dependencies, false);
 
             var remoteProvider = new Mock<IRemoteDependencyProvider>();
             remoteProvider.Setup(e => e.FindLibraryAsync(range, framework, cacheContext, testLogger, token))

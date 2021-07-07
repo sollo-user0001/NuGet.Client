@@ -221,6 +221,7 @@ namespace NuGet.ProjectModel
 
             // Get the nearest framework
             var referencesForFramework = packageSpec.GetRestoreMetadataFramework(targetFramework);
+            // TODO NK - Does this mean project through project transitivity is important as well?
 
             // Ensure that this project is compatible
             if (referencesForFramework.FrameworkName?.IsSpecificFramework == true)
@@ -327,7 +328,15 @@ namespace NuGet.ProjectModel
                 dependencies.AddRange(packageSpec.Dependencies);
 
                 // Add framework specific dependencies
+                // TODO NK - Is this where we're supposed to add the dependencies?
+                // What happens in the case of end to end tests.
                 var targetFrameworkInfo = packageSpec.GetTargetFramework(targetFramework);
+
+                if (targetFrameworkInfo.FrameworkName == null && targetFramework is AssetTargetFallbackFramework atfFramework)
+                {
+                    targetFrameworkInfo = packageSpec.GetTargetFramework(atfFramework.AsFallbackFramework());
+                }
+
                 dependencies.AddRange(targetFrameworkInfo.Dependencies);
 
 #if enableCPVMTransitivePinning

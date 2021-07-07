@@ -31,16 +31,20 @@ namespace NuGet.LibraryModel
         /// </summary>
         public NuGetFramework Framework { get; }
 
+        public bool UsedATFForDependencies { get; }
+
         public LibraryDependencyInfo(
             LibraryIdentity library,
             bool resolved,
             NuGetFramework framework,
-            IEnumerable<LibraryDependency> dependencies)
+            IEnumerable<LibraryDependency> dependencies,
+            bool usedATFForDependencies)
         {
             Resolved = resolved;
             Library = library ?? throw new ArgumentNullException(nameof(library));
             Framework = framework ?? throw new ArgumentNullException(nameof(framework));
             Dependencies = dependencies ?? throw new ArgumentNullException(nameof(dependencies));
+            UsedATFForDependencies = usedATFForDependencies;
         }
 
         /// <summary>
@@ -48,15 +52,15 @@ namespace NuGet.LibraryModel
         /// </summary>
         public static LibraryDependencyInfo CreateUnresolved(LibraryIdentity library, NuGetFramework framework)
         {
-            return new LibraryDependencyInfo(library, resolved: false, framework: framework, dependencies: Enumerable.Empty<LibraryDependency>());
+            return new LibraryDependencyInfo(library, resolved: false, framework: framework, dependencies: Enumerable.Empty<LibraryDependency>(), usedATFForDependencies: false);
         }
 
         /// <summary>
         /// Resolved
         /// </summary>
-        public static LibraryDependencyInfo Create(LibraryIdentity library, NuGetFramework framework, IEnumerable<LibraryDependency> dependencies)
+        public static LibraryDependencyInfo Create(LibraryIdentity library, NuGetFramework framework, IEnumerable<LibraryDependency> dependencies, bool usedATFForDependencies)
         {
-            return new LibraryDependencyInfo(library, resolved: false, framework: framework, dependencies: dependencies);
+            return new LibraryDependencyInfo(library, resolved: false, framework: framework, dependencies: dependencies, usedATFForDependencies: usedATFForDependencies);
         }
     }
 }

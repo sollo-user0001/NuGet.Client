@@ -142,7 +142,7 @@ namespace NuGet.DependencyResolver.Core.Tests
                 ILogger logger,
                 CancellationToken cancellationToken)
             {
-                return Task.FromResult(LibraryDependencyInfo.Create(match, targetFramework, Enumerable.Empty<LibraryDependency>()));
+                return Task.FromResult(LibraryDependencyInfo.Create(match, targetFramework, Enumerable.Empty<LibraryDependency>(), false));
             }
 
             public Task<IEnumerable<NuGetVersion>> GetAllVersionsAsync(

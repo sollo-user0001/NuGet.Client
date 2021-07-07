@@ -125,5 +125,24 @@ namespace NuGet.Protocol.Tests
                 }
             }
         }
+
+        [Fact]
+        public async Task FindPackageByIdResource_Ordering()
+        {
+            using (var rootV3 = TestDirectory.Create())
+            {
+                // Arrange
+                var testLogger = new TestLogger();
+
+                var a1 = new PackageIdentity("a", NuGetVersion.Parse("1.0.0-alpha.1.2"));
+                var a2 = new PackageIdentity("a", NuGetVersion.Parse("1.0.0+server.2"));
+                var b = new PackageIdentity("b", NuGetVersion.Parse("1.0.0.0"));
+
+                await SimpleTestPackageUtility.CreateFolderFeedV3Async(rootV3, a1, a2, b);
+
+                var repo = Repository.Factory.GetCoreV3(rootV3);
+                var findPackageByIdResource = await repo.GetResourceAsync<FindPackageByIdResource>();
+            }
+        }
     }
 }

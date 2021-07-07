@@ -36,15 +36,12 @@ namespace NuGet.Commands
         public LockFile CreateLockFile(LockFile previousLockFile,
             PackageSpec project,
             IEnumerable<RestoreTargetGraph> targetGraphs,
-            IReadOnlyList<NuGetv3LocalRepository> localRepositories,
-            RemoteWalkContext context)
+            IReadOnlyList<NuGetv3LocalRepository> localRepositories)
         {
             return CreateLockFile(previousLockFile,
                 project,
                 targetGraphs,
-                localRepositories,
-                context,
-                new LockFileBuilderCache());
+                localRepositories);
         }
 
         public LockFile CreateLockFile(LockFile previousLockFile,
@@ -263,7 +260,7 @@ namespace NuGet.Commands
                                 cache: lockFileBuilderCache,
                                 maccatalystFallback: maccatalystFallback);
 
-                            if (!targetLibrary.Equals(targetLibraryWithoutFallback))
+                            if (!targetLibrary.Equals(targetLibraryWithoutFallback) || graphItem.Data.UsedAssetTargetFallback)
                             {
                                 var libraryName = DiagnosticUtility.FormatIdentity(library);
 

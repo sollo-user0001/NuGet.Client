@@ -69,10 +69,10 @@ namespace Test.Utility
 
             if (_graph.TryGetValue(match, out dependencies))
             {
-                return LibraryDependencyInfo.Create(match, targetFramework, dependencies);
+                return LibraryDependencyInfo.Create(match, targetFramework, dependencies, false);
             }
 
-            return LibraryDependencyInfo.Create(match, targetFramework, Enumerable.Empty<LibraryDependency>());
+            return LibraryDependencyInfo.Create(match, targetFramework, Enumerable.Empty<LibraryDependency>(), false);
         }
 
         public bool SupportsType(LibraryDependencyTarget libraryType)
