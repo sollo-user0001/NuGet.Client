@@ -5,41 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Globalization;
-using NuGet.ProjectManagement;
 
 namespace NuGet.SolutionRestoreManager
 {
-    [Export(typeof(IVsNuGetProjectUpdateEvents))]
+    [Export(typeof(IVsNuGetPackageReferenceProjectUpdateEvents))]
     [Export(typeof(IVsNuGetProgressReporter))]
     [PartCreationPolicy(CreationPolicy.Shared)]
-    public class VsRestoreProgressEvents : IVsNuGetProjectUpdateEvents, IVsNuGetProgressReporter
+    public class VsRestoreProgressEvents : IVsNuGetPackageReferenceProjectUpdateEvents, IVsNuGetProgressReporter
     {
-        private readonly IPackageEventsProvider _packageEventsProvider;
         public event SolutionRestoreEventHandler SolutionRestoreStarted;
         public event SolutionRestoreEventHandler SolutionRestoreFinished;
         public event ProjectUpdateEventHandler ProjectUpdateStarted;
         public event ProjectUpdateEventHandler ProjectUpdateFinished;
-
-        [ImportingConstructor]
-        public VsRestoreProgressEvents(IPackageEventsProvider packageEventsProvider)
-        {
-            var packageEvents = _packageEventsProvider.GetPackageEvents();
-            packageEvents.PackageInstalling += PackageEventsProjectUpdateStart;
-            packageEvents.PackageInstalled += PackageEventsProjectUpdateEnd;
-            packageEvents.PackageUninstalling += PackageEventsProjectUpdateStart;
-            packageEvents.PackageUninstalled += PackageEventsProjectUpdateEnd;
-        }
-
-        private void PackageEventsProjectUpdateStart(object sender, PackageEventArgs e)
-        {
-            var projectPath = e.Project.GetMetadata<string>(NuGetProjectMetadataKeys.FullPath);
-            ProjectUpdateStarted(projectPath, new string[] { e.InstallPath });
-        }
-        private void PackageEventsProjectUpdateEnd(object sender, PackageEventArgs e)
-        {
-            var projectPath = e.Project.GetMetadata<string>(NuGetProjectMetadataKeys.FullPath);
-            ProjectUpdateFinished(projectPath, new string[] { e.InstallPath });
-        }
 
         public void EndProjectUpdate(string projectName)
         {

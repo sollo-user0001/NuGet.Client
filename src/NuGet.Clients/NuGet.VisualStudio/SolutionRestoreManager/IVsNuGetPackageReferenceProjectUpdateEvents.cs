@@ -8,13 +8,13 @@ using System.Runtime.InteropServices;
 namespace NuGet.SolutionRestoreManager
 {
     /// <summary>
-    /// NuGet project update events.
-    /// Architecturally, packages.config and PackageReference projects differ in the way package updates are processed.
-    /// This interface is meant to provide a single API of interest for components wanting to listen to *all* project updates by NuGet.
+    /// NuGet PackageReference project update events.
+    /// This API provides means of tracking project updates performance by NuGet on PackageReference projects, in particular updates to the assets file and nuget generated props/targets.
+    /// All events are fired from a threadpool thread.
     /// </summary>
     [ComImport]
     [Guid("30CDDD0A-6901-482D-8CEF-6D798F1A99FC")]
-    public interface IVsNuGetProjectUpdateEvents
+    public interface IVsNuGetPackageReferenceProjectUpdateEvents
     {
         /// <summary>
         /// Raised when solution restore starts with the list of projects that will be restored.
@@ -22,7 +22,8 @@ namespace NuGet.SolutionRestoreManager
         /// </summary>
         /// <remarks>
         /// Just because a project is being restored that doesn't necessarily mean any actual updates will happen.
-        /// Only PackageReference projects are includede in this list.
+        /// Only PackageReference projects are included in this list.
+        /// No heavy computation should happen in any of these methods as it'll block the NuGet progress.
         /// </remarks>
         event SolutionRestoreEventHandler SolutionRestoreStarted;
 
@@ -32,22 +33,29 @@ namespace NuGet.SolutionRestoreManager
         /// </summary>
         /// <remarks>
         /// Just because a project is being restored that doesn't necessarily mean any actual updates will happen.
-        /// Only PackageReference projects are includede in this list.
+        /// Only PackageReference projects are included in this list.
+        /// No heavy computation should happen in any of these methods as it'll block the NuGet progress.
         /// </remarks>
         event SolutionRestoreEventHandler SolutionRestoreFinished;
 
         /// <summary>
         /// Raised when particular project is about to be updated.
-        /// For PackageReference projects, this means an assets file or a nuget temp msbuild file write (nuget.g.props or nuget.g.targets). The list of updated files will include the aforementioned.
-        /// For packages.config projects, this means a single package is installed/unistall/unistalled. The list of updated files may include the path of the package that was changed.
+        /// This means an assets file or a nuget temp msbuild file write (nuget.g.props or nuget.g.targets). The list of updated files will include the aforementioned.
+        /// If a project was restore, but no file updates happen, this event will not be fired.
         /// </summary>
+        /// <remarks>
+        /// No heavy computation should happen in any of these methods as it'll block the NuGet progress.
+        /// </remarks>
         event ProjectUpdateEventHandler ProjectUpdateStarted;
 
         /// <summary>
         /// Raised when particular project update has been completed.
-        /// For PackageReference projects, this means an assets file or a nuget temp msbuild file write (nuget.g.props or nuget.g.targets). The list of updated files will include the aforementioned.
-        /// For packages.config projects, this means a single package is installed/unistall/unistalled. The list of updated files may include the path of the package that was changed.
+        /// This means an assets file or a nuget temp msbuild file write (nuget.g.props or nuget.g.targets). The list of updated files will include the aforementioned.
+        /// If a project was restore, but no file updates happen, this event will not be fired.
         /// </summary>
+        /// <remarks>
+        /// No heavy computation should happen in any of these methods as it'll block the NuGet progress.
+        /// </remarks>
         event ProjectUpdateEventHandler ProjectUpdateFinished;
     }
 
