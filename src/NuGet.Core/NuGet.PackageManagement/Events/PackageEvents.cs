@@ -44,6 +44,7 @@ namespace NuGet.ProjectManagement
         {
         }
 
+        // This is where the package events are happening.
         internal void NotifyInstalling(PackageEventArgs e)
         {
             var handler = PackageInstalling;

@@ -19,6 +19,8 @@ namespace NuGet.Commands
     /// </summary>
     public static class RestoreRunner
     {
+        public static INuGetProgressReporter NuGetRestoreReporter { get; set; }
+
         /// <summary>
         /// Create requests, execute requests, and commit restore results.
         /// </summary>
@@ -228,9 +230,13 @@ namespace NuGet.Commands
 
         private static async Task<RestoreSummary> ExecuteAndCommitAsync(RestoreSummaryRequest summaryRequest, CancellationToken token)
         {
-            var result = await ExecuteAsync(summaryRequest, token);
 
-            return await CommitAsync(result, token);
+            var result = await ExecuteAsync(summaryRequest, token);
+            NuGetRestoreReporter.StartProjectUpdate(summaryRequest.Request.Project.FilePath);
+
+            var summary = await CommitAsync(result, token);
+            NuGetRestoreReporter.EndProjectUpdate(summaryRequest.Request.Project.FilePath);
+            return summary;
         }
 
         private static async Task<RestoreResultPair> ExecuteAsync(RestoreSummaryRequest summaryRequest, CancellationToken token)

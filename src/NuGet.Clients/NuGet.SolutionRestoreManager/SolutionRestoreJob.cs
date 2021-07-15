@@ -49,6 +49,7 @@ namespace NuGet.SolutionRestoreManager
         private readonly ISettings _settings;
         private readonly IRestoreEventsPublisher _restoreEventsPublisher;
         private readonly ISolutionRestoreChecker _solutionUpToDateChecker;
+        private readonly IVsNuGetProgressReporter _nuGetProgressReporter;
 
         private RestoreOperationLogger _logger;
         private INuGetProjectContext _nuGetProjectContext;
@@ -76,14 +77,16 @@ namespace NuGet.SolutionRestoreManager
             ISourceRepositoryProvider sourceRepositoryProvider,
             IRestoreEventsPublisher restoreEventsPublisher,
             ISettings settings,
-            ISolutionRestoreChecker solutionRestoreChecker)
+            ISolutionRestoreChecker solutionRestoreChecker,
+            IVsNuGetProgressReporter nuGetProgressReporter)
             : this(AsyncServiceProvider.GlobalProvider,
                   packageRestoreManager,
                   solutionManager,
                   sourceRepositoryProvider,
                   restoreEventsPublisher,
                   settings,
-                  solutionRestoreChecker
+                  solutionRestoreChecker,
+                  nuGetProgressReporter
                 )
         { }
 
@@ -94,7 +97,8 @@ namespace NuGet.SolutionRestoreManager
             ISourceRepositoryProvider sourceRepositoryProvider,
             IRestoreEventsPublisher restoreEventsPublisher,
             ISettings settings,
-            ISolutionRestoreChecker solutionRestoreChecker)
+            ISolutionRestoreChecker solutionRestoreChecker,
+            IVsNuGetProgressReporter nuGetProgressReporter)
         {
             Assumes.Present(asyncServiceProvider);
             Assumes.Present(packageRestoreManager);
@@ -103,6 +107,7 @@ namespace NuGet.SolutionRestoreManager
             Assumes.Present(restoreEventsPublisher);
             Assumes.Present(settings);
             Assumes.Present(solutionRestoreChecker);
+            Assumes.Present(nuGetProgressReporter);
 
             _asyncServiceProvider = asyncServiceProvider;
             _packageRestoreManager = packageRestoreManager;
@@ -112,6 +117,7 @@ namespace NuGet.SolutionRestoreManager
             _settings = settings;
             _packageRestoreConsent = new PackageRestoreConsent(_settings);
             _solutionUpToDateChecker = solutionRestoreChecker;
+            _nuGetProgressReporter = nuGetProgressReporter;
         }
 
 
@@ -416,6 +422,9 @@ namespace NuGet.SolutionRestoreManager
                     // Avoid restoring if all the projects are up to date, or the solution does not have build integrated projects.
                     if (DependencyGraphRestoreUtility.IsRestoreRequired(dgSpec))
                     {
+                        var projectList = dgSpec.Projects.Select(e => e.Name).ToList();
+                        RestoreRunner.NuGetRestoreReporter = _nuGetProgressReporter;
+                        _nuGetProgressReporter.StartSolutionRestore(projectList);
                         // NOTE: During restore for build integrated projects,
                         //       We might show the dialog even if there are no packages to restore
                         // When both currentStep and totalSteps are 0, we get a marquee on the dialog
@@ -478,6 +487,7 @@ namespace NuGet.SolutionRestoreManager
                                     {
                                         _status = NuGetOperationStatus.Failed;
                                     }
+                                    _nuGetProgressReporter.EndSolutionRestore(projectList);
                                 }
                             },
                             token);
