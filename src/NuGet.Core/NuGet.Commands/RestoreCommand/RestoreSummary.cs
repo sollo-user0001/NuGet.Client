@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Newtonsoft.Json.Converters;
 using NuGet.Common;
 using NuGet.Protocol.Core.Types;
 using NuGet.Shared;
@@ -59,6 +60,7 @@ namespace NuGet.Commands
                 .AsReadOnly();
             InstallCount = result.GetAllInstalled().Count;
             Errors = errors.ToArray();
+            var unixDateTimeConverter = new UnixDateTimeConverter();
         }
 
         public RestoreSummary(
