@@ -377,17 +377,6 @@ Condition=" ('%(Extension)' == '.dll' OR '%(Filename)' == 'NuGet.CommandLine.XPl
     </ItemGroup>
   </Target>
 
-  <!--
-    ============================================================
-    EnsureNewtonsoftJsonVersion ensures that the resolved version of Newtonsoft.Json is the version that ships with VS/.NET Core SDK
-    ============================================================
-  -->
-  <Target Name="EnsureNewtonsoftJsonVersion" AfterTargets="ResolveAssemblyReferences">
-    <Error
-      Text="Newtonsoft.Json must be version $(NewtonsoftJsonPackageVersion) but resolved %(Reference.NuGetPackageVersion)"
-      Condition=" %(Reference.NuGetPackageId) == 'Newtonsoft.Json' AND %(Reference.NuGetPackageVersion) != '$(NewtonsoftJsonPackageVersion)' " />
-  </Target>
-
   <Target Name="EnsurePackageReferenceVersions">
     <Error
       Text="%(PackageReference.Identity) should not have a version declared outside of packages.targets but found %(PackageReference.Version)"
