@@ -699,7 +699,7 @@ namespace NuGet.PackageManagement.UI
                 cancellationToken.ThrowIfCancellationRequested();
 
                 IsPackageDeprecated = deprecationMetadata != null;
-                VulnerabilityMaxSeverity = packageMetadata?.Vulnerabilities?.Max(v => v.Severity) ?? -1;
+                VulnerabilityMaxSeverity = packageMetadata?.Vulnerabilities?.FirstOrDefault()?.Severity ?? -1;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
