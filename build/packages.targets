@@ -102,7 +102,7 @@
         <PackageReference Update="Portable.BouncyCastle" Version="1.8.10" />
         <PackageReference Update="xunit" Version="$(XunitVersion)" />
         <PackageReference Update="xunit.runner.visualstudio" Version="$(XunitVersion)" />
-        <PackageReference Update="Xunit.StaFact" Version="0.2.9" />
+        <PackageReference Update="Xunit.StaFact" Version="1.0.37" />
     </ItemGroup>
 
   </Project>
