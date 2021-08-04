@@ -97,6 +97,7 @@ jobs:
 - job: CrossFramework_Tests_On_Windows
   dependsOn:
   - Initialize_Build
+  - Build_and_UnitTest_NonRTM
   timeoutInMinutes: 30
   variables:
     BuildNumber: $[dependencies.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
