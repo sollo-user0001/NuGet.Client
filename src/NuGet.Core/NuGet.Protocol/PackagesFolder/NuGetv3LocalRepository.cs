@@ -199,9 +199,12 @@ namespace NuGet.Repositories
                     // for the life of this restore.
                     // Locking is done at a higher level around the id
                     if(_packageCache.TryAdd(path, package))
-                    { 
+                    {
+                        // This ensures we have write access
                         if(!_isFallbackFolder)
                         {
+                            // The caching expiration policies are based on usage frequency of packages
+                            // Updating the metadata timestamp indicates this package is actively being used, so it will not be deleted.
                             File.SetLastWriteTimeUtc(nupkgMetadataPath, DateTime.UtcNow);
                         }
                     }
