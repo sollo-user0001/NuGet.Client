@@ -198,7 +198,13 @@ namespace NuGet.Repositories
                     // Cache the package, if it is valid it will not change
                     // for the life of this restore.
                     // Locking is done at a higher level around the id
-                    _packageCache.TryAdd(path, package);
+                    if(_packageCache.TryAdd(path, package))
+                    { 
+                        if(!_isFallbackFolder)
+                        {
+                            File.SetLastWriteTimeUtc(nupkgMetadataPath, DateTime.UtcNow);
+                        }
+                    }
                 }
             }
 

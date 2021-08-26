@@ -1347,6 +1347,46 @@ namespace NuGet.Commands.FuncTest
             }
         }
 
+        [Fact]
+        public async Task RestoreCommand_UpdatePackageMetadataLastWriteTimeAsync()
+        {
+            // Arrange
+            var sources = new List<PackageSource>
+            {
+                new PackageSource(NuGetConstants.V3FeedUrl)
+            };
+
+            using (var packagesDir = TestDirectory.Create())
+            using (var projectDir = TestDirectory.Create())
+            {
+                var specPath = Path.Combine(projectDir, "TestProject", "project.json");
+                var spec = JsonPackageSpecReader.GetPackageSpec(BasicConfig.ToString(), "TestProject", specPath).EnsureProjectJsonRestoreMetadata();
+
+                AddDependency(spec, "NuGet.Versioning", "1.0.7");
+
+                var logger = new TestLogger();
+                var request = new TestRestoreRequest(spec, sources, packagesDir, logger)
+                {
+                    LockFilePath = Path.Combine(projectDir, "project.lock.json")
+                };
+
+                var command = new RestoreCommand(request);
+                var firstRun = await command.ExecuteAsync();
+
+                // Act
+                var packageMetadata = Path.Combine(packagesDir, @"nuget.versioning\1.0.7\.nupkg.metadata");
+
+                var firstTouchTime = File.GetLastWriteTimeUtc(packageMetadata);
+
+                request = new TestRestoreRequest(spec, sources, packagesDir, logger);
+                command = new RestoreCommand(request);
+
+                var result = await command.ExecuteAsync();
+
+                Assert.True(firstTouchTime < File.GetLastWriteTimeUtc(packageMetadata));
+            }
+        }
+
         [Theory]
         [InlineData(NuGetConstants.V2FeedUrl)]
         [InlineData(NuGetConstants.V3FeedUrl)]
