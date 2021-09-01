@@ -100,7 +100,6 @@ namespace NuGetVSExtension
         private uint _solutionNotBuildingAndNotDebuggingContextCookie;
         private uint _solutionExistsCookie;
         private bool _powerConsoleCommandExecuting;
-        private bool _initialized;
         private NuGetPowerShellUsageCollector _nuGetPowerShellUsageCollector;
 
         public NuGetPackage()
@@ -160,6 +159,8 @@ namespace NuGetVSExtension
 
             await base.InitializeAsync(cancellationToken, progress);
 
+            await InitializeMEFAsync();
+
             // Add our command handlers for menu (commands must exist in the .vsct file)
             await AddMenuCommandHandlersAsync();
 
@@ -201,61 +202,51 @@ namespace NuGetVSExtension
         /// </summary>
         private async Task InitializeMEFAsync()
         {
-            await _semaphore.ExecuteAsync(async () =>
+            var componentModel = await GetServiceAsync(typeof(SComponentModel)) as IComponentModel;
+            Assumes.Present(componentModel);
+            componentModel.DefaultCompositionService.SatisfyImportsOnce(this);
+
+            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            SolutionManager.Value.AfterNuGetProjectRenamed += SolutionManager_NuGetProjectRenamed;
+
+            Brushes.LoadVsBrushes(NuGetExperimentationService.Value);
+
+            _dte = (DTE)await GetServiceAsync(typeof(SDTE));
+            Assumes.Present(_dte);
+
+            _dteEvents = _dte.Events.DTEEvents;
+            _dteEvents.OnBeginShutdown += OnBeginShutDown;
+
+            if (SolutionManager.Value.NuGetProjectContext == null)
             {
-                if (_initialized)
-                {
-                    return;
-                }
+                SolutionManager.Value.NuGetProjectContext = ProjectContext.Value;
+            }
 
-                var componentModel = await GetServiceAsync(typeof(SComponentModel)) as IComponentModel;
-                Assumes.Present(componentModel);
-                componentModel.DefaultCompositionService.SatisfyImportsOnce(this);
+            // when NuGet loads, if the current solution has some package
+            // folders marked for deletion (because a previous uninstalltion didn't succeed),
+            // delete them now.
+            if (await SolutionManager.Value.IsSolutionOpenAsync())
+            {
+                await DeleteOnRestartManager.Value.DeleteMarkedPackageDirectoriesAsync(ProjectContext.Value);
+            }
 
-                await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-                SolutionManager.Value.AfterNuGetProjectRenamed += SolutionManager_NuGetProjectRenamed;
-
-                Brushes.LoadVsBrushes(NuGetExperimentationService.Value);
-
-                _dte = (DTE)await GetServiceAsync(typeof(SDTE));
-                Assumes.Present(_dte);
-
-                _dteEvents = _dte.Events.DTEEvents;
-                _dteEvents.OnBeginShutdown += OnBeginShutDown;
-
-                if (SolutionManager.Value.NuGetProjectContext == null)
-                {
-                    SolutionManager.Value.NuGetProjectContext = ProjectContext.Value;
-                }
-
-                // when NuGet loads, if the current solution has some package
-                // folders marked for deletion (because a previous uninstalltion didn't succeed),
-                // delete them now.
-                if (await SolutionManager.Value.IsSolutionOpenAsync())
-                {
-                    await DeleteOnRestartManager.Value.DeleteMarkedPackageDirectoriesAsync(ProjectContext.Value);
-                }
-
-                IVsTrackProjectRetargeting vsTrackProjectRetargeting = await this.GetServiceAsync<SVsTrackProjectRetargeting, IVsTrackProjectRetargeting>();
-                IVsMonitorSelection vsMonitorSelection = await this.GetServiceAsync<IVsMonitorSelection, IVsMonitorSelection>(throwOnFailure: false);
-                ProjectRetargetingHandler = new ProjectRetargetingHandler(
-                        _dte,
-                        SolutionManager.Value,
-                        this,
-                        componentModel,
-                        vsTrackProjectRetargeting,
-                        vsMonitorSelection);
-
-                IVsSolution2 vsSolution2 = await this.GetServiceAsync<SVsSolution, IVsSolution2>();
-                ProjectUpgradeHandler = new ProjectUpgradeHandler(
+            IVsTrackProjectRetargeting vsTrackProjectRetargeting = await this.GetServiceAsync<SVsTrackProjectRetargeting, IVsTrackProjectRetargeting>();
+            IVsMonitorSelection vsMonitorSelection = await this.GetServiceAsync<IVsMonitorSelection, IVsMonitorSelection>(throwOnFailure: false);
+            ProjectRetargetingHandler = new ProjectRetargetingHandler(
+                    _dte,
                     SolutionManager.Value,
-                    vsSolution2);
+                    this,
+                    componentModel,
+                    vsTrackProjectRetargeting,
+                    vsMonitorSelection);
 
-                SolutionUserOptions.Value.LoadSettings();
+            IVsSolution2 vsSolution2 = await this.GetServiceAsync<SVsSolution, IVsSolution2>();
+            ProjectUpgradeHandler = new ProjectUpgradeHandler(
+                SolutionManager.Value,
+                vsSolution2);
 
-                _initialized = true;
-            });
+            SolutionUserOptions.Value.LoadSettings();
         }
 
         private void SolutionManager_NuGetProjectRenamed(object sender, NuGetProjectEventArgs e)
@@ -358,11 +349,6 @@ namespace NuGetVSExtension
         private void ExecutePowerConsoleCommand(object sender, EventArgs e)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (ShouldMEFBeInitialized())
-            {
-                NuGetUIThreadHelper.JoinableTaskFactory.Run(InitializeMEFAsync);
-            }
 
             // Get the instance number 0 of this tool window. This window is single instance so this instance
             // is actually the only one.
@@ -607,11 +593,6 @@ namespace NuGetVSExtension
         {
             await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            if (ShouldMEFBeInitialized())
-            {
-                await InitializeMEFAsync();
-            }
-
             var project = VsMonitorSelection.GetActiveProject();
 
             if (!await NuGetProjectUpgradeUtility.IsNuGetProjectUpgradeableAsync(null, project))
@@ -649,11 +630,6 @@ namespace NuGetVSExtension
         private async Task ShowManageLibraryPackageDialogAsync(string searchText, ShowUpdatePackageOptions updatePackageOptions = null)
         {
             await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            if (ShouldMEFBeInitialized())
-            {
-                await InitializeMEFAsync();
-            }
 
             // *** temp code
             var project = VsMonitorSelection.GetActiveProject();
@@ -953,11 +929,6 @@ namespace NuGetVSExtension
             {
                 await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-                if (ShouldMEFBeInitialized())
-                {
-                    await InitializeMEFAsync();
-                }
-
                 var windowFrame = await FindExistingSolutionWindowFrameAsync();
                 if (windowFrame == null)
                 {
@@ -1020,10 +991,6 @@ namespace NuGetVSExtension
         private void BeforeQueryStatusForPowerConsole(object sender, EventArgs args)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (ShouldMEFBeInitialized())
-            {
-                NuGetUIThreadHelper.JoinableTaskFactory.Run(InitializeMEFAsync);
-            }
 
             var isConsoleBusy = false;
             if (ConsoleStatus != null)
@@ -1039,11 +1006,6 @@ namespace NuGetVSExtension
         {
             NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                if (ShouldMEFBeInitialized())
-                {
-                    await InitializeMEFAsync();
-                }
-
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 var command = (OleMenuCommand)sender;
@@ -1064,11 +1026,6 @@ namespace NuGetVSExtension
             // Check whether to show context menu item on packages.config
             NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                if (ShouldMEFBeInitialized())
-                {
-                    await InitializeMEFAsync();
-                }
-
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 var command = (OleMenuCommand)sender;
@@ -1123,11 +1080,6 @@ namespace NuGetVSExtension
         {
             NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                if (ShouldMEFBeInitialized())
-                {
-                    await InitializeMEFAsync();
-                }
-
                 await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 var command = (OleMenuCommand)sender;
@@ -1159,11 +1111,6 @@ namespace NuGetVSExtension
         {
             NuGetUIThreadHelper.JoinableTaskFactory.Run(async delegate
             {
-                if (ShouldMEFBeInitialized())
-                {
-                    await InitializeMEFAsync();
-                }
-
                 await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 var command = (OleMenuCommand)sender;
@@ -1236,21 +1183,6 @@ namespace NuGetVSExtension
                    && await EnvDTEProjectUtility.IsSupportedAsync(project);
         }
 
-        private bool ShouldMEFBeInitialized()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (!_initialized)
-            {
-                var hr = VsMonitorSelection.IsCmdUIContextActive(
-                _solutionExistsCookie, out var pfActive);
-
-                return ErrorHandler.Succeeded(hr) && pfActive > 0;
-            }
-
-            return false;
-        }
-
         #region IVsPackageExtensionProvider implementation
 
         public dynamic CreateExtensionInstance(ref Guid extensionPoint, ref Guid instance)
@@ -1281,10 +1213,6 @@ namespace NuGetVSExtension
         public int LoadUserOptions(IVsSolutionPersistence pPersistence, uint grfLoadOpts)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
-            if (ShouldMEFBeInitialized())
-            {
-                NuGetUIThreadHelper.JoinableTaskFactory.Run(InitializeMEFAsync);
-            }
 
             return SolutionUserOptions.Value.LoadUserOptions(pPersistence, grfLoadOpts);
         }

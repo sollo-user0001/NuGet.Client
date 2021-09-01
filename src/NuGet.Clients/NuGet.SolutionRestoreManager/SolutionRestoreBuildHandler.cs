@@ -54,8 +54,6 @@ namespace NuGet.SolutionRestoreManager
 
         private Microsoft.VisualStudio.Shell.IAsyncServiceProvider _serviceProvider;
 
-        private bool _isMEFInitialized;
-
         private SolutionRestoreBuildHandler()
         {
         }
@@ -76,8 +74,6 @@ namespace NuGet.SolutionRestoreManager
             SolutionRestoreWorker = new Lazy<ISolutionRestoreWorker>(() => restoreWorker);
             SolutionRestoreChecker = new Lazy<ISolutionRestoreChecker>(() => solutionRestoreChecker);
             _solutionBuildManager = buildManager;
-
-            _isMEFInitialized = true;
         }
 
         public void Dispose()
@@ -101,6 +97,9 @@ namespace NuGet.SolutionRestoreManager
 
             var instance = new SolutionRestoreBuildHandler();
 
+            var componentModel = await serviceProvider.GetComponentModelAsync();
+            componentModel.DefaultCompositionService.SatisfyImportsOnce(instance);
+
             await instance.SubscribeAsync(serviceProvider);
 
             return instance;
@@ -123,17 +122,6 @@ namespace NuGet.SolutionRestoreManager
 
         public void UpdateSolution_QueryDelayBuildAction(uint dwAction, out IVsTask pDelayTask)
         {
-            if (!_isMEFInitialized)
-            {
-                ThreadHelper.JoinableTaskFactory.Run(async () =>
-                {
-                    var componentModel = await _serviceProvider.GetComponentModelAsync();
-                    componentModel.DefaultCompositionService.SatisfyImportsOnce(this);
-                });
-
-                _isMEFInitialized = true;
-            }
-
             pDelayTask = SolutionRestoreWorker.Value.JoinableTaskFactory.RunAsyncAsVsTask(
                 VsTaskRunContext.UIThreadBackgroundPriority, (token) => RestoreAsync(dwAction, token));
         }

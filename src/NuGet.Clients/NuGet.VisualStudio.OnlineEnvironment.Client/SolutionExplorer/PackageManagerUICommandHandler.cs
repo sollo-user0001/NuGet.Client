@@ -51,8 +51,6 @@ namespace NuGet.VisualStudio.OnlineEnvironment.Client
         private uint _maxToolWindowId = 0;
         private Dictionary<string, uint> _projectGuidToToolWindowId;
 
-        private bool _initialized;
-
         public PackageManagerUICommandHandler(JoinableTaskFactory joinableTaskFactory, IAsyncServiceProvider asyncServiceProvider)
         {
             _joinableTaskFactory = joinableTaskFactory ?? throw new ArgumentNullException(nameof(joinableTaskFactory));
@@ -102,6 +100,8 @@ namespace NuGet.VisualStudio.OnlineEnvironment.Client
 
         private void Initialize()
         {
+            _joinableTaskFactory.RunAsync(() => InitializeMEFAsync()).PostOnFailure(nameof(InitializeMEFAsync));
+
             _vsMonitorSelection = new AsyncLazy<vsShellInterop.IVsMonitorSelection>(
                 async () =>
                 {
@@ -155,8 +155,6 @@ namespace NuGet.VisualStudio.OnlineEnvironment.Client
         /// </summary>
         private async Task InitializeMEFAsync()
         {
-            _initialized = true;
-
             var componentModel = await _asyncServiceProvider.GetServiceAsync(typeof(SComponentModel)) as IComponentModel;
             Assumes.Present(componentModel);
             componentModel.DefaultCompositionService.SatisfyImportsOnce(this);
@@ -193,11 +191,6 @@ namespace NuGet.VisualStudio.OnlineEnvironment.Client
         private async Task ShowPackageManagerUIAsync(WorkspaceVisualNodeBase workspaceVisualNodeBase)
         {
             await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            if (ShouldMEFBeInitialized())
-            {
-                await InitializeMEFAsync();
-            }
 
             IVsWindowFrame window = await CreateNewWindowFrameAsync(workspaceVisualNodeBase);
             if (window != null)
@@ -394,13 +387,6 @@ namespace NuGet.VisualStudio.OnlineEnvironment.Client
             {
                 packageManagerControl.Search(searchText);
             }
-        }
-
-        private bool ShouldMEFBeInitialized()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            return !_initialized;
         }
     }
 }
