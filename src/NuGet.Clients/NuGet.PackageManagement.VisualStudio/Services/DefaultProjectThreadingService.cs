@@ -10,6 +10,7 @@ namespace NuGet.PackageManagement.VisualStudio
     [Export(typeof(IVsProjectThreadingService))]
     internal class DefaultProjectThreadingService : IVsProjectThreadingService
     {
+        // TODO NK - remove this?
         public JoinableTaskFactory JoinableTaskFactory => NuGetUIThreadHelper.JoinableTaskFactory;
     }
 }

@@ -8,6 +8,7 @@ using NuGet.Frameworks;
 
 namespace NuGet.ProjectManagement
 {
+    // TODO NK - This need to be async
     public interface IMSBuildProjectSystem
     {
         NuGetFramework TargetFramework { get; }
@@ -39,9 +40,12 @@ namespace NuGet.ProjectManagement
         /// <param name="name">name of the assembly</param>
         Task AddFrameworkReferenceAsync(string name, string packageId);
 
+        // TODO NK - This can be async.
         void AddImport(string targetFullPath, ImportLocation location);
         void RemoveImport(string targetFullPath);
-        dynamic GetPropertyValue(string propertyName);
+#pragma warning disable RS0016 // Add public types and members to the declared API
+        Task<dynamic> GetPropertyValueAsync(string propertyName);
+#pragma warning restore RS0016 // Add public types and members to the declared API
         string ResolvePath(string path);
         bool IsSupportedFile(string path);
         void AddBindingRedirects();

@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Threading.Tasks;
 using Microsoft;
 using NuGet.ProjectManagement;
 using NuGet.VisualStudio;
@@ -35,16 +36,10 @@ namespace NuGet.PackageManagement.VisualStudio
 
         #endregion INuGetProjectServices
 
-        public bool SupportsPackageReferences
+        public async Task<bool> SupportsPackageReferences()
         {
-            get
-            {
-                return _threadingService.JoinableTaskFactory.Run(async () =>
-                {
-                    await _threadingService.JoinableTaskFactory.SwitchToMainThreadAsync();
-                    return _vsProjectAdapter.Project.Object is VSLangProj150.VSProject4;
-                });
-            }
+            await _threadingService.JoinableTaskFactory.SwitchToMainThreadAsync();
+            return _vsProjectAdapter.Project.Object is VSLangProj150.VSProject4;
         }
 
         public bool NominatesOnSolutionLoad => false;

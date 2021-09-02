@@ -339,9 +339,9 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public async Task<bool> IsSolutionOpenAsync()
         {
-            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             var dte = await _asyncServiceProvider.GetDTEAsync();
+
+            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             return dte != null &&
                    dte.Solution != null &&
                    dte.Solution.IsOpen;
@@ -349,8 +349,6 @@ namespace NuGet.PackageManagement.VisualStudio
 
         public async Task<bool> IsSolutionAvailableAsync()
         {
-            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             if (!await IsSolutionOpenAsync())
             {
                 // Solution is not open. Return false.
@@ -359,7 +357,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             await EnsureInitializeAsync();
 
-            if (!DoesSolutionRequireAnInitialSaveAs())
+            if (!await DoesSolutionRequireAnInitialSaveAsAsync())
             {
                 // Solution is open and 'Save As' is not required. Return true.
                 return true;
@@ -433,6 +431,21 @@ namespace NuGet.PackageManagement.VisualStudio
             return Path.GetDirectoryName(solutionFilePath);
         }
 
+        public async Task<string> GetSolutionDirectoryAsync()
+        {
+            if (!await IsSolutionOpenAsync())
+            {
+                return null;
+            }
+            var solutionFilePath = await GetSolutionFilePathAsync();
+
+            if (string.IsNullOrEmpty(solutionFilePath))
+            {
+                return null;
+            }
+            return Path.GetDirectoryName(solutionFilePath);
+        }
+
         public async Task<string> GetSolutionFilePathAsync()
         {
             await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -465,9 +478,10 @@ namespace NuGet.PackageManagement.VisualStudio
         /// <summary>
         /// Checks whether the current solution is saved to disk, as opposed to be in memory.
         /// </summary>
-        private bool DoesSolutionRequireAnInitialSaveAs()
+        private async Task<bool> DoesSolutionRequireAnInitialSaveAsAsync()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            // TODO NK - Is this stilla  thing?
+            await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             // Check if user is doing File - New File without saving the solution.
             var value = GetVSSolutionProperty((int)(__VSPROPID.VSPROPID_IsSolutionSaveAsRequired));
@@ -709,7 +723,7 @@ namespace NuGet.PackageManagement.VisualStudio
                             catch (Exception e)
                             {
                                 // Ignore failed projects.
-                                _logger.LogWarning($"The project {project.Name} failed to initialize as a NuGet project.");
+                                _logger.LogWarning($"The project {await GetProjectNameAsync(project)} failed to initialize as a NuGet project.");
                                 _logger.LogError(e.ToString());
                             }
 
@@ -729,6 +743,12 @@ namespace NuGet.PackageManagement.VisualStudio
                     }
                 }
             }, CancellationToken.None);
+
+            static async Task<string> GetProjectNameAsync(Project project)
+            {
+                await NuGetUIThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                return project.Name;
+            }
         }
 
         private async Task AddVsProjectAdapterToCacheAsync(IVsProjectAdapter vsProjectAdapter)
@@ -837,7 +857,7 @@ namespace NuGet.PackageManagement.VisualStudio
         {
             var context = new ProjectProviderContext(
                 projectContext ?? EmptyNuGetProjectContext,
-                () => PackagesFolderPathUtility.GetPackagesFolderPath(this, _settings.Value));
+                async () => await PackagesFolderPathUtility.GetPackagesFolderPathAsync(this, _settings.Value));
 
             return await _projectSystemFactory.TryCreateNuGetProjectAsync(project, context);
         }
@@ -1014,7 +1034,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
             var context = new ProjectProviderContext(
                 EmptyNuGetProjectContext,
-                () => PackagesFolderPathUtility.GetPackagesFolderPath(this, _settings.Value));
+                async () => await PackagesFolderPathUtility.GetPackagesFolderPathAsync(this, _settings.Value));
 
             var nuGetProject = await _projectSystemFactory.CreateNuGetProjectAsync<LegacyPackageReferenceProject>(
                 vsProjectAdapter, context);

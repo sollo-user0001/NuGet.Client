@@ -38,7 +38,7 @@ namespace NuGet.PackageManagement.VisualStudio
 
         private VSProject4 AsVSProject4 => _asVSProject4.Value;
 
-        public bool SupportsPackageReferences => true;
+        public Task<bool> SupportsPackageReferences() => Task.FromResult(true);
 
         public bool NominatesOnSolutionLoad { get; private set; } = false;
 
