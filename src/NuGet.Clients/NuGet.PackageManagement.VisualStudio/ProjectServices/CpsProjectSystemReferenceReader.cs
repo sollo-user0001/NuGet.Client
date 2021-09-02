@@ -63,6 +63,7 @@ namespace NuGet.PackageManagement.VisualStudio
             {
                 return Enumerable.Empty<ProjectRestoreReference>();
             }
+
             var results = new List<ProjectRestoreReference>();
             var hasMissingReferences = false;
 
@@ -105,7 +106,6 @@ namespace NuGet.PackageManagement.VisualStudio
             return results;
         }
 
-<<<<<<< HEAD
         /// <summary>
         /// Gets the project reference service for the suggested configured project if available, <see langword="null"/> otherwise.
         /// </summary>
@@ -126,8 +126,6 @@ namespace NuGet.PackageManagement.VisualStudio
             return service;
         }
 
-=======
->>>>>>> ae237aeb6 (Cleanup)
         public Task<IEnumerable<LibraryDependency>> GetPackageReferencesAsync(
             NuGetFramework targetFramework, CancellationToken _)
         {
