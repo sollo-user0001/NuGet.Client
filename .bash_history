@@ -1,141 +1,3 @@
-test_expect_success 'advice from failed cherry-pick --no-commit' "
-	pristine_detach initial &&
-
-	picked=\$(git rev-parse --short picked) &&
-	cat <<-EOF >expected &&
-	error: could not apply \$picked... picked
-	hint: after resolving the conflicts, mark the corrected paths
-	hint: with 'git add <paths>' or 'git rm <paths>'
-	EOF
-	test_must_fail git cherry-pick --no-commit picked 2>actual &&
-
-	test_cmp expected actual
-"
-test_expect_success 'advice from failed cherry-pick with GIT_CHERRY_PICK_HELP' "
-	pristine_detach initial &&
-	(
-		picked=\$(git rev-parse --short picked) &&
-		cat <<-EOF >expected &&
-		error: could not apply \$picked... picked
-		hint: and then do something else
-		EOF
-		GIT_CHERRY_PICK_HELP='and then do something else' &&
-		export GIT_CHERRY_PICK_HELP &&
-		test_must_fail git cherry-pick picked 2>actual &&
-		test_cmp expected actual
-	)
-"
-test_expect_success 'failed cherry-pick sets CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-	test_must_fail git cherry-pick picked &&
-	test_cmp_rev picked CHERRY_PICK_HEAD
-'
-test_expect_success 'failed cherry-pick with --delete-cherry-pick-head does not set CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-	test_must_fail git cherry-pick --delete-cherry-pick-head picked &&
-	test_must_fail git rev-parse --verify CHERRY_PICK_HEAD
-'
-test_expect_success 'successful cherry-pick does not set CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-	git cherry-pick base &&
-	test_must_fail git rev-parse --verify CHERRY_PICK_HEAD
-'
-test_expect_success 'cherry-pick --no-commit does not set CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-	git cherry-pick --no-commit base &&
-	test_must_fail git rev-parse --verify CHERRY_PICK_HEAD
-'
-test_expect_success 'cherry-pick w/dirty tree does not set CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-	echo foo >foo &&
-	test_must_fail git cherry-pick base &&
-	test_must_fail git rev-parse --verify CHERRY_PICK_HEAD
-'
-test_expect_success 	'cherry-pick --strategy=resolve w/dirty tree does not set CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-	echo foo >foo &&
-	test_must_fail git cherry-pick --strategy=resolve base &&
-	test_must_fail git rev-parse --verify CHERRY_PICK_HEAD
-'
-test_expect_success 'git reset clears CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-
-	test_must_fail git cherry-pick picked &&
-	git reset &&
-
-	test_must_fail git rev-parse --verify CHERRY_PICK_HEAD
-'
-test_expect_success 'failed commit does not clear CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-
-	test_must_fail git cherry-pick picked &&
-	test_must_fail git commit &&
-
-	test_cmp_rev picked CHERRY_PICK_HEAD
-'
-test_expect_success 'cancelled commit does not clear CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-
-	test_must_fail git cherry-pick picked &&
-	echo resolved >foo &&
-	git add foo &&
-	git update-index --refresh -q &&
-	test_must_fail git diff-index --exit-code HEAD &&
-	(
-		GIT_EDITOR=false &&
-		export GIT_EDITOR &&
-		test_must_fail git commit
-	) &&
-
-	test_cmp_rev picked CHERRY_PICK_HEAD
-'
-test_expect_success 'successful commit clears CHERRY_PICK_HEAD' '
-	pristine_detach initial &&
-
-	test_must_fail git cherry-pick picked &&
-	echo resolved >foo &&
-	git add foo &&
-	git commit &&
-
-	test_must_fail git rev-parse --verify CHERRY_PICK_HEAD
-'
-test_expect_success 'partial commit of cherry-pick fails' '
-	pristine_detach initial &&
-
-	test_must_fail git cherry-pick picked &&
-	echo resolved >foo &&
-	git add foo &&
-	test_must_fail git commit foo 2>err &&
-
-	test_i18ngrep "cannot do a partial commit during a cherry-pick." err
-'
-test_expect_success 'commit --amend of cherry-pick fails' '
-	pristine_detach initial &&
-
-	test_must_fail git cherry-pick picked &&
-	echo resolved >foo &&
-	git add foo &&
-	test_must_fail git commit --amend 2>err &&
-
-	test_i18ngrep "in the middle of a cherry-pick -- cannot amend." err
-'
-test_expect_success 'successful final commit clears cherry-pick state' '
-	pristine_detach initial &&
-
-	test_must_fail git cherry-pick base picked-signed &&
-	echo resolved >foo &&
-	test_path_is_file .git/sequencer/todo &&
-	git commit -a &&
-	test_path_is_missing .git/sequencer
-'
-test_expect_success 'reset after final pick clears cherry-pick state' '
-	pristine_detach initial &&
-
-	test_must_fail git cherry-pick base picked-signed &&
-	echo resolved >foo &&
-	test_path_is_file .git/sequencer/todo &&
-	git reset &&
-	test_path_is_missing .git/sequencer
 '
 test_expect_success 'failed cherry-pick produces dirty index' '
 	pristine_detach initial &&
@@ -498,3 +360,141 @@ git push https://github.com/02818bea-9a08-4b24-a53f-8d4ad597fe20/Desktop.git
 git push https://github.com/02818bea-9a08-4b24-a53f-8d4ad597fe20/Desktop.git
 git push https://github.com/02818bea-9a08-4b24-a53f-8d4ad597fe20/Desktop.git
 git push https://github.com/02818bea-9a08-4b24-a53f-8d4ad597fe20/Desktop.git
+#!/bin/bash
+set -Eeuo pipefail
+cd "$(dirname "$BASH_SOURCE")"
+versions=( "$@" )
+if [ ${#versions[@]} -eq 0 ]; then 	versions=( */ ); fi
+versions=( "${versions[@]%/}" )
+arch="$(< arch)"
+#!/usr/bin/env bash
+set -Eeuo pipefail
+cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
+declare -A aliases=( )
+aliases[$(< latest)]+=' latest'
+aliases[$(< rolling)]+=' rolling' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git pull -f|git rebase --root
+git pull -f|git rebase --all
+git pull -f|git rebase --root
+git add -A|git rebase --root
+git add -A|git rebase -f
+npm install -g expo-cli
+git grep aliases[$(< rolling)]+=' rolling' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< rolling)]+=' rolling' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git init -g --bare \\wsl.localhost\aliases[$(< rolling)]+=' rolling' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446|git grep https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-ssh2-preferences.htm -l
+git init -g --bare \\wsl.localhost\aliases[$(< 0)]+=' -1' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446|git grep https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-ssh2-preferences.htm -l
+git init -g --bare \\wsl.localhost\aliases[$(< https://nic.c)]+=' ftp:/home.nic' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446|git grep https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-ssh2-preferences.htm -l
+git init -g --bare \\wsl.localhost\aliases[$(< https://ssl.nic.c.cc)]+=' ftp:/home.nic' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446|git grep https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-ssh2-preferences.htm -l
+git init -g --bare \\wsl.localhost\aliases[$(< https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-ssh2-preferences.htm)]+=' ftp:/home.nic' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446|git grep https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-ssh2-preferences.htm -l
+git init -g --bare \\wsl.localhost\aliases[$(< ssh2-preferences.htm)]+=' ftp:/home.nic' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446|git grep https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-ssh2-preferences.htm -l
+git init -g --bare \\wsl.localhost\aliases[$(< ssh2-preferences.htm-preferences.htm)]+=' ftp:/home.nic' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446|git grep https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-ssh2-preferences.htm -l
+git grep \\wsl.localhost\aliases[$(< ssh.2preferences.htm)]+=' rolling' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< https://ssh.2preferences.htm)]+=' rolling' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< https://ssh.2preferences.htm )]+=' rolling' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< https://ssh.2preferences.htm )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS: -?_  :0:. )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS0:. )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS 0:. )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS)]+-=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< : : )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< C )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< C:/-- \g )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< C:/-- /ip=\\wsl.localhost\ -g )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< ip:\\wsl.localhost\ -g )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< ipv6:\\wsl.localhost\ -g )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(<ftp:\\wsl.localhost\ -g )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \\wsl.localhost\aliases[$(< \\wsl.localhost\ -g )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \wsl.localhost\aliases[$(< \\wsl.localhost\ -g )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+git grep \wsl.localhost\aliases[$(< (\\wsl.localhost\ -g(X: )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+echo $SHELL  git pull -f|git rebase --root
+--
+-
+1
+000
+0
+1
+1
+
+
+$shell
+git grep \wsl.localhost\aliases[$(< \\wsl.localhost\ -g )]+=' https://help.eclipse.org/2020-09/topic/org.eclipse.platform.doc.user/reference/ref-net-preferences.htm#SOCKS' # https://github.com/docker-library/official-images/issues/2323#issuecomment-284409446
+echo -exit
+git grep -l
+echo
+exit
+git grep -w 
+echo -exit
+echo /exit
+exit
+git rebase --root
+git add -A&&git commit -a|git restzore -S -W .gitignore/ -p|git stash -a|git rebase --root
+git pull
+git grep -l B12A32C2DDEF446830088496FAE25789
+git grep $
+#!/bin/bash
+set -Eeuo pipefail
+cd "$(dirname "$BASH_SOURCE")"
+versions=( "$@" )
+if [ ${#versions[@]} -eq 0 ]; then 	versions=( */ ); fi
+versions=( "${versions[@]%/}" )
+badness=
+gpgFingerprint="$(grep -v '^#' gpg-fingerprint 2>/dev/null || true)"
+if [ -z "$gpgFingerprint" ]; then 	echo >&2 'warning: missing gpg-fingerprint! skipping PGP verification!'; 	badness=1; else 	export GNUPGHOME="$(mktemp -d)"; 	trap "rm -r '$GNUPGHOME'" EXIT; 	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$gpgFingerprint"; fi
+#!/bin/bash
+set -Eeuo pipefail
+cd "$(dirname "$BASH_SOURCE")"
+versions=( "$@" )
+if [ ${#versions[@]} -eq 0 ]; then 	versions=( */ ); fi
+versions=( "${versions[@]%/}" )
+arch="$(< arch)"
+git rebase --root|git pull -f
+git push 000
+git push upstream 000
+git push -u --mirror
+git  branch upstream/000
+git grep pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra
+git grep pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra
+git grep pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra=\\?\C:\--\nic.c\.vs\v16\nicyapi\efi\nic.c\.vs\v16\ddesktop\cs-CZ\Tutorial\docs\you-(-master)\$$\vscode-cmake-tools\solutions-modern-cicd-anthos\opensource.guide\--.gitmodules\Agent Diagnostic Logs\PowerToys-master\.pipelines\ci\templates\workflows\.vscode\file_1_T0FolderPath\{fe3ea159-8a85-4172-acc2-3770c49608be}\npm magic --token-usblmg34gh3fdnlvpzker7bdayu3cj3o4tmrahzxjwvg3v3373wq=pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra.dockerfile
+git grep \\?\C:\--\nic.c\.vs\v16\nicyapi\efi\nic.c\.vs\v16\ddesktop\cs-CZ\Tutorial\docs\you-(-master)\$$\vscode-cmake-tools\solutions-modern-cicd-anthos\opensource.guide\--.gitmodules\Agent Diagnostic Logs\PowerToys-master\.pipelines\ci\templates\workflows\.vscode\file_1_T0FolderPath\{fe3ea159-8a85-4172-acc2-3770c49608be}\npm magic --token-usblmg34gh3fdnlvpzker7bdayu3cj3o4tmrahzxjwvg3v3373wq=pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra.dockerfile
+git grep  \\?\C:\--\nic.c\.vs\v16\nicyapi\efi\nic.c\.vs\v16\ddesktop\cs-CZ\Tutorial\docs\you-pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra\$$\vscode-cmake-tools\solutions-modern-cicd-anthos\opensource.guide\--.gitmodules\Agent Diagnostic Logs\PowerToys-master\.pipelines\ci\templates\workflows\.vscode\file_1_T0FolderPath\{fe3ea159-8a85-4172-acc2-3770c49608be}\npm magic --token-usblmg34gh3fdnlvpzker7bdayu3cj3o4tmrahzxjwvg3v3373wq=pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra.dockerfile
+git grep  \\?\C:\--\nic.c\.vs\v16\nicyapi\efi\nic.c\.vs\v16\ddesktop\cs-CZ\Tutorial\docs\you-pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra\$$\vscode-cmake-tools\solutions-modern-cicd-anthos\opensource.guide\--.gitmodules\Agent Diagnostic Logs\PowerToys-master\.pipelines\ci\templates\workflows\.vscode\file_1_T0FolderPath\{fe3ea159-8a85-4172-acc2-3770c49608be}\npm magic --token-usblmg34gh3fdnlvpzker7bdayu3cj3o4tmrahzxjwvg3v3373wq=pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra.js
+git grep  \\?\C:\--\nic.c\.vs\v16\nicyapi\efi\nic.c\.vs\v16\ddesktop\cs-CZ\Tutorial\docs\you-pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra\$$\vscode-cmake-tools\solutions-modern-cicd-anthos\opensource.guide\--.gitmodules\Agent Diagnostic Logs\PowerToys-master\.pipelines\ci\templates\workflows\.vscode\file_1_T0FolderPath\{fe3ea159-8a85-4172-acc2-3770c49608be}\npm magic --token-usblmg34gh3fdnlvpzker7bdayu3cj3o4tmrahzxjwvg3v3373wq=pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra
+git grep  \\?\C:\--\nic.c\.vs\v16\nicyapi\efi\nic.c\.vs\v16\ddesktop\cs-CZ\Tutorial\docs\you-pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra\$$\vscode-cmake-tools\solutions-modern-cicd-anthos\opensource.guide\--.gitmodules\Agent Diagnostic Logs\PowerToys-master\.pipelines\ci\templates\workflows\.vscode\file_1_T0FolderPath\{fe3ea159-8a85-4172-acc2-3770c49608be}\npm magic --token-usblmg34gh3fdnlvpzker7bdayu3cj3o4tmrahzxjwvg3v3373wq=pz6srel6a5myiynslsjpayjmm2vjxgehqmtmfzi47by35vslxhra.dockerfileC
+git grep c
+git rebase --skip
+git rebase --continue|git rebase --skip|git rebase --abort
+git submodule add \\localhost\CS\C2@C1\C C:/-- \C:echo [-"/git submodule add \\localhost\CS\C2@C1\C C:/-- \C:\ "]
+git submodule add \\localhost\CS\C2@C1\C C:/-- \C:/
+git submodule add \\localhost\CS\C2@C1\C C:/-- \C:\
+git grep C:/Users/userl/source/repos/C
+git  C:/Users/userl/source/repos/C C:/Users/userl/source/repos/C
+git add apply b1e3541db9... Update dev_server -A|git rebase --skip
+git add apply b1e3541db9... -A|git rebase --skip
+git add apply b1e3541db9 -A|git rebase --skip
+git add token b1e3541db9 -A|git rebase --skip
+git add b1e3541db9 -A|git rebase --skip
+git add  -A|git rebase --skip
+git rebase --all
+git rebase https://dev.azure.com/Neuromancer0296/C/_git/C?version=GBmaster
+git rebase https://dev.azure.com/Neuromancer0296/C/_git/C
+git submodule add  https://dev.azure.com/Neuromancer0296/C/_git/C?version=GBmaster //localhost/CS/C2@C1/C
+git submodule add  https://dev.azure.com/Neuromancer0296/C/_git/C //localhost/CS/C2@C1/C
+git submodule add  https://github.com/desktop/desktop.git //localhost/CS/C2@C1/C
+git submodule add  https://localhost/CS/C2@C1/C
+git submodule add  \\localhost\CS\C2@C1\C
+git submodule add  https://github.com/desktop/desktop.git 
+git help
+git push https://dev.azure.com/Neuromancer0296/C/_git/C?version=GBmaster
+git clone https://dev.azure.com/Neuromancer0296/C/_git/C?version=GBmaster
+git grep -l
+git status
+git help tutorial
+git log --graph
+alice$ git remote add bob /home/bob/myrepo
+$SHELL git remote add bob /home/bob/myrepo
+$SHELL git remote add bob \\localhost\CS\C2@C1\C
+$SHELL\\localhost\CS\C2@C1\C
+$SHELL \\localhost\CS\C2@C1\C
+git init -q --bare \\localhost\CS\C2@C1\C
+git submodule add \\localhost\CS\C2@C1\C C:/-- \C:\
