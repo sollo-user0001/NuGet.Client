@@ -138,29 +138,29 @@ stages:
         steps:
           - template: Functional_Tests_On_Windows.yml
 
-          - job: Tests_On_Linux
-            timeoutInMinutes: 45
-            variables:
-              FULLVSTSBUILDNUMBER: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
-              SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
-              MSBUILDDISABLENODEREUSE: 1
-            condition: "and(succeeded(), eq(variables['RunTestsOnLinux'], 'true'))"
-            pool:
-              vmImage: ubuntu-latest
-            steps:
-              - template: Tests_On_Linux.yml
+      - job: Tests_On_Linux
+        timeoutInMinutes: 45
+        variables:
+          FULLVSTSBUILDNUMBER: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
+          SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
+          MSBUILDDISABLENODEREUSE: 1
+        condition: "and(succeeded(), eq(variables['RunTestsOnLinux'], 'true'))"
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - template: Tests_On_Linux.yml
 
-          - job: CrossFramework_Tests_On_Windows
-            timeoutInMinutes: 30
-            variables:
-              BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
-              FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
-              SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
-            condition: "and(succeeded(),eq(variables['RunCrossFrameworkTestsOnWindows'], 'true')) "
-            pool:
-              name: VSEngSS-MicroBuild2019-1ES
-            steps:
-              - template: CrossFramework_Tests_On_Windows.yml
+      - job: CrossFramework_Tests_On_Windows
+        timeoutInMinutes: 30
+        variables:
+          BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
+          FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
+          SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
+        condition: "and(succeeded(),eq(variables['RunCrossFrameworkTestsOnWindows'], 'true')) "
+        pool:
+          name: VSEngSS-MicroBuild2019-1ES
+        steps:
+          - template: CrossFramework_Tests_On_Windows.yml
 
   - stage: MacTests
     dependsOn:
