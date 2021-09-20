@@ -64,91 +64,91 @@ stages:
         steps:
           - template: Initialize_Build.yml
 
-- stage: Build_Insertable
-  displayName: Build NuGet inserted into VS and .NET SDK
-  dependsOn: Initialize
-  jobs:
-  - job: Build_and_UnitTest_NonRTM
-    timeoutInMinutes: 170
-    variables:
-      BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
-      FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
-      VsTargetChannel: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.VsTargetChannel']]
-      VsTargetMajorVersion: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.VsTargetMajorVersion']]
-      SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
-      LocalizedLanguageCount: "13"
-      BuildRTM: "false"
-    pool:
-      name: VSEngSS-MicroBuild2019-1ES
-    steps:
-    - template: Build_and_UnitTest.yml
-
-- stage: Build_For_Publishing
-  displayName: Build NuGet published to nuget.org
-  dependsOn: Initialize
-  jobs:
-  - job: Build_and_UnitTest_RTM
-    timeoutInMinutes: 170
-    variables:
-      BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
-      FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
-      VsTargetChannel: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.VsTargetChannel']]
-      VsTargetMajorVersion: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.VsTargetMajorVersion']]
-      SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
-      LocalizedLanguageCount: "13"
-      BuildRTM: "true"
-    pool:
-      name: VSEngSS-MicroBuild2019-1ES
-    steps:
-    - template: Build_and_UnitTest.yml
-
-  - stage: Source_Build
+  - stage: Build_Insertable
+    displayName: Build NuGet inserted into VS and .NET SDK
     dependsOn: Initialize
     jobs:
-      - job: Build_Source_Build
+      - job: Build_and_UnitTest_NonRTM
+        timeoutInMinutes: 170
+        variables:
+          BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
+          FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
+          VsTargetChannel: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.VsTargetChannel']]
+          VsTargetMajorVersion: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.VsTargetMajorVersion']]
+          SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
+          LocalizedLanguageCount: "13"
+          BuildRTM: "false"
+        pool:
+          name: VSEngSS-MicroBuild2019-1ES
+        steps:
+          - template: Build_and_UnitTest.yml
+
+  - stage: Build_For_Publishing
+    displayName: Build NuGet published to nuget.org
+    dependsOn: Initialize
+    jobs:
+      - job: Build_and_UnitTest_RTM
+        timeoutInMinutes: 170
+        variables:
+          BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
+          FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
+          VsTargetChannel: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.VsTargetChannel']]
+          VsTargetMajorVersion: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.VsTargetMajorVersion']]
+          SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
+          LocalizedLanguageCount: "13"
+          BuildRTM: "true"
+        pool:
+          name: VSEngSS-MicroBuild2019-1ES
+        steps:
+          - template: Build_and_UnitTest.yml
+
+      - stage: Source_Build
+        dependsOn: Initialize
+        jobs:
+          - job: Build_Source_Build
+            timeoutInMinutes: 120
+            variables:
+              BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
+              FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
+              SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
+              BuildRTM: "false"
+            pool:
+              vmImage: ubuntu-latest
+            steps:
+              - template: Source_Build.yml
+
+  - stage: CLI_Func_Tests
+    dependsOn: Initialize
+    jobs:
+      - job: Functional_Tests_On_Windows
         timeoutInMinutes: 120
         variables:
           BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
           FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
           SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
-          BuildRTM: "false"
+        condition: "and(succeeded(),eq(variables['RunFunctionalTestsOnWindows'], 'true')) "
         pool:
-          vmImage: ubuntu-latest
+          name: VSEngSS-MicroBuild2019-1ES
+        strategy:
+          matrix:
+            IsDesktop:
+              SkipCoreAssemblies: "true"
+            IsCore:
+              SkipDesktopAssemblies: "true"
         steps:
-          - template: Source_Build.yml
+          - template: Functional_Tests_On_Windows.yml
 
-- stage: CLI_Func_Tests
-  dependsOn: Initialize
-  jobs:
-  - job: Functional_Tests_On_Windows
-    timeoutInMinutes: 120
-    variables:
-      BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
-      FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
-      SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
-    condition: "and(succeeded(),eq(variables['RunFunctionalTestsOnWindows'], 'true')) "
-    pool:
-      name: VSEngSS-MicroBuild2019-1ES
-    strategy:
-      matrix:
-        IsDesktop:
-          SkipCoreAssemblies: "true"
-        IsCore:
-          SkipDesktopAssemblies: "true"
-    steps:
-    - template: Functional_Tests_On_Windows.yml
-
-      - job: Tests_On_Linux
-        timeoutInMinutes: 45
-        variables:
-          FULLVSTSBUILDNUMBER: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
-          SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
-          MSBUILDDISABLENODEREUSE: 1
-        condition: "and(succeeded(), eq(variables['RunTestsOnLinux'], 'true'))"
-        pool:
-          vmImage: ubuntu-latest
-        steps:
-          - template: Tests_On_Linux.yml
+          - job: Tests_On_Linux
+            timeoutInMinutes: 45
+            variables:
+              FULLVSTSBUILDNUMBER: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
+              SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
+              MSBUILDDISABLENODEREUSE: 1
+            condition: "and(succeeded(), eq(variables['RunTestsOnLinux'], 'true'))"
+            pool:
+              vmImage: ubuntu-latest
+            steps:
+              - template: Tests_On_Linux.yml
 
   - job: CrossFramework_Tests_On_Windows
     timeoutInMinutes: 30
@@ -160,7 +160,7 @@ stages:
     pool:
       name: VSEngSS-MicroBuild2019-1ES
     steps:
-    - template: CrossFramework_Tests_On_Windows.yml
+      - template: CrossFramework_Tests_On_Windows.yml
 
   - stage: MacTests
     dependsOn:
