@@ -53,6 +53,10 @@ stages:
             arguments: -RunSettingsURI '$(runSettingsURI)' -InstallPath 'C:\Test\VisualStudio' -NoRestart -Quiet -Wait -OutVariableName 'VisualStudio.InstallationUnderTest.SetupParameters'
 
       deployAndRunTestsStepList:
+        - checkout: self
+          clean: true
+          submodules: true
+
         - task: PowerShell@1
           displayName: "Print Environment Variables"
           inputs:
