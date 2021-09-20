@@ -102,20 +102,20 @@ stages:
         steps:
           - template: Build_and_UnitTest.yml
 
-      - stage: Source_Build
-        dependsOn: Initialize
-        jobs:
-          - job: Build_Source_Build
-            timeoutInMinutes: 120
-            variables:
-              BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
-              FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
-              SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
-              BuildRTM: "false"
-            pool:
-              vmImage: ubuntu-latest
-            steps:
-              - template: Source_Build.yml
+  - stage: Source_Build
+    dependsOn: Initialize
+    jobs:
+      - job: Build_Source_Build
+        timeoutInMinutes: 120
+        variables:
+          BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
+          FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
+          SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
+          BuildRTM: "false"
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - template: Source_Build.yml
 
   - stage: CLI_Func_Tests
     dependsOn: Initialize
@@ -150,17 +150,17 @@ stages:
             steps:
               - template: Tests_On_Linux.yml
 
-  - job: CrossFramework_Tests_On_Windows
-    timeoutInMinutes: 30
-    variables:
-      BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
-      FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
-      SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
-    condition: "and(succeeded(),eq(variables['RunCrossFrameworkTestsOnWindows'], 'true')) "
-    pool:
-      name: VSEngSS-MicroBuild2019-1ES
-    steps:
-      - template: CrossFramework_Tests_On_Windows.yml
+          - job: CrossFramework_Tests_On_Windows
+            timeoutInMinutes: 30
+            variables:
+              BuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.BuildNumber']]
+              FullVstsBuildNumber: $[stageDependencies.Initialize.Initialize_Build.outputs['updatebuildnumber.FullVstsBuildNumber']]
+              SDKVersionForBuild: $[stageDependencies.Initialize.Initialize_Build.outputs['getSDKVersionForBuild.SDKVersionForBuild']]
+            condition: "and(succeeded(),eq(variables['RunCrossFrameworkTestsOnWindows'], 'true')) "
+            pool:
+              name: VSEngSS-MicroBuild2019-1ES
+            steps:
+              - template: CrossFramework_Tests_On_Windows.yml
 
   - stage: MacTests
     dependsOn:
