@@ -78,7 +78,9 @@ namespace NuGet.Packaging
 
 #if NETFRAMEWORK || NETSTANDARD2_0
             const int bufferSize = 81920; // Same as Stream.CopyTo
+#pragma warning disable CS0436 // Type conflicts with imported type
             byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+#pragma warning restore CS0436 // Type conflicts with imported type
 
             int bytesRead;
             while ((bytesRead = inputStream.Read(buffer, offset: 0, buffer.Length)) != 0)
@@ -86,7 +88,9 @@ namespace NuGet.Packaging
                 outputStream.Write(buffer, offset: 0, bytesRead);
             }
 
+#pragma warning disable CS0436 // Type conflicts with imported type
             ArrayPool<byte>.Shared.Return(buffer);
+#pragma warning restore CS0436 // Type conflicts with imported type
 #else
             inputStream.CopyTo(outputStream);
 #endif

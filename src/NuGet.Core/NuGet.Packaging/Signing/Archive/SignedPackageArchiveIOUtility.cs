@@ -53,7 +53,9 @@ namespace NuGet.Packaging.Signing
                 throw new ArgumentOutOfRangeException(nameof(position), Strings.SignedPackageArchiveIOInvalidRead);
             }
 
+#pragma warning disable CS0436 // Type conflicts with imported type
             byte[] buffer = ArrayPool<byte>.Shared.Rent(_bufferSize);
+#pragma warning restore CS0436 // Type conflicts with imported type
 
             Stream stream = reader.BaseStream;
             long currentPosition;
@@ -65,7 +67,9 @@ namespace NuGet.Packaging.Signing
                 writer.Write(buffer, index: 0, bytesRead);
             }
 
+#pragma warning disable CS0436 // Type conflicts with imported type
             ArrayPool<byte>.Shared.Return(buffer);
+#pragma warning restore CS0436 // Type conflicts with imported type
         }
 
         /// <summary>
@@ -93,7 +97,9 @@ namespace NuGet.Packaging.Signing
                 throw new ArgumentOutOfRangeException(nameof(position), Strings.SignedPackageArchiveIOInvalidRead);
             }
 
+#pragma warning disable CS0436 // Type conflicts with imported type
             byte[] buffer = ArrayPool<byte>.Shared.Rent(_bufferSize);
+#pragma warning restore CS0436 // Type conflicts with imported type
 
             Stream stream = reader.BaseStream;
             long currentPosition;
@@ -105,7 +111,9 @@ namespace NuGet.Packaging.Signing
                 HashBytes(hashAlgorithm, buffer, bytesRead);
             }
 
+#pragma warning disable CS0436 // Type conflicts with imported type
             ArrayPool<byte>.Shared.Return(buffer);
+#pragma warning restore CS0436 // Type conflicts with imported type
         }
 
         /// <summary>
@@ -164,7 +172,9 @@ namespace NuGet.Packaging.Signing
                 throw new ArgumentOutOfRangeException(nameof(position), Strings.SignedPackageArchiveIOInvalidRead);
             }
 
+#pragma warning disable CS0436 // Type conflicts with imported type
             byte[] buffer = ArrayPool<byte>.Shared.Rent(_bufferSize);
+#pragma warning restore CS0436 // Type conflicts with imported type
 
             Stream stream = reader.BaseStream;
             long currentPosition;
@@ -176,7 +186,9 @@ namespace NuGet.Packaging.Signing
                 HashBytes(hashFunc, buffer, bytesRead);
             }
 
+#pragma warning disable CS0436 // Type conflicts with imported type
             ArrayPool<byte>.Shared.Return(buffer);
+#pragma warning restore CS0436 // Type conflicts with imported type
         }
 
         /// <summary>

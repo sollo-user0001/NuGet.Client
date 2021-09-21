@@ -106,7 +106,7 @@ namespace NuGet.ContentModel
 
         public Func<string, PatternTable, object> Parser { get; }
 
-        public virtual bool TryLookup(string name, PatternTable table, out object value)
+        public virtual bool TryLookup(ReadOnlySpan<char> name, PatternTable table, out object value)
         {
             if (name == null)
             {
@@ -120,9 +120,9 @@ namespace NuGet.ContentModel
                 {
                     foreach (var fileExtension in FileExtensions)
                     {
-                        if (name.EndsWith(fileExtension, StringComparison.OrdinalIgnoreCase))
+                        if (name.EndsWith(fileExtension.AsSpan(), StringComparison.OrdinalIgnoreCase))
                         {
-                            value = name;
+                            value = name.ToString();
                             return true;
                         }
                     }
@@ -131,7 +131,7 @@ namespace NuGet.ContentModel
 
             if (Parser != null)
             {
-                value = Parser.Invoke(name, table);
+                value = Parser.Invoke(name.ToString(), table);
                 if (value != null)
                 {
                     return true;
@@ -142,7 +142,7 @@ namespace NuGet.ContentModel
             return false;
         }
 
-        private static bool ContainsSlash(string name)
+        private static bool ContainsSlash(ReadOnlySpan<char> name)
         {
             var containsSlash = false;
             foreach (var ch in name)

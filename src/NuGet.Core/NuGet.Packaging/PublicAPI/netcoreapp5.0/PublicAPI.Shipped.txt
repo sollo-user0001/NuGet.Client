@@ -1833,7 +1833,6 @@ static readonly NuGet.RuntimeModel.RuntimeGraph.Empty -> NuGet.RuntimeModel.Runt
 static readonly NuGet.RuntimeModel.RuntimeGraph.RuntimeGraphFileName -> string
 virtual NuGet.ContentModel.ContentPropertyDefinition.Compare(object criteriaValue, object candidateValue1, object candidateValue2) -> int
 virtual NuGet.ContentModel.ContentPropertyDefinition.IsCriteriaSatisfied(object critieriaValue, object candidateValue) -> bool
-virtual NuGet.ContentModel.ContentPropertyDefinition.TryLookup(string name, NuGet.ContentModel.PatternTable table, out object value) -> bool
 virtual NuGet.ContentModel.SelectionCriteriaBuilder.Add.get -> NuGet.ContentModel.SelectionCriteriaEntryBuilder
 virtual NuGet.ContentModel.SelectionCriteriaBuilder.Criteria.get -> NuGet.ContentModel.SelectionCriteria
 virtual NuGet.Packaging.Core.NuspecCoreReader.GetDependencies() -> System.Collections.Generic.IEnumerable<NuGet.Packaging.Core.PackageDependency>

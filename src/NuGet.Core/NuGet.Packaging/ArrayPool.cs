@@ -36,7 +36,9 @@ namespace System.Buffers
         /// <summary>
         /// Retrieves a shared <see cref="ArrayPool{T}"/> instance.
         /// </summary>
+#pragma warning disable CS0436 // Type conflicts with imported type
         public static readonly ArrayPool<T> Shared = new();
+#pragma warning restore CS0436 // Type conflicts with imported type
 
         /// <summary>
         /// Retrieves a buffer that is at least the requested length.

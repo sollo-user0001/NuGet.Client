@@ -11,6 +11,10 @@
     <IsCore>true</IsCore>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('netstandard')) ">
+    <IsCoreNetStandard>true</IsCoreNetStandard>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp5.0' ">
     <DefineConstants>$(DefineConstants);NETCORE5_0</DefineConstants>
   </PropertyGroup>

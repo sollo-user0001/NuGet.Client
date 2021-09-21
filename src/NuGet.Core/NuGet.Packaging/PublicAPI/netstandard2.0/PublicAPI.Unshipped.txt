@@ -1,2 +1,3 @@
 override NuGet.Packaging.PackageArchiveReader.CopyNupkgAsync(string nupkgFilePath, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<string>
 static NuGet.Packaging.Licenses.NuGetLicenseData.LicenseListVersion.get -> string
+virtual NuGet.ContentModel.ContentPropertyDefinition.TryLookup(System.ReadOnlySpan<char> name, NuGet.ContentModel.PatternTable table, out object value) -> bool
