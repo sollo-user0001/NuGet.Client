@@ -1421,7 +1421,7 @@ namespace NuGet.CommandLine.Test
 
                 var r = CommandRunner.Run(
                     nugetexe,
-                    Directory.GetCurrentDirectory(),
+                    workingPath,
                     string.Join(" ", args),
                     waitForExit: true);
 
@@ -1470,7 +1470,7 @@ namespace NuGet.CommandLine.Test
                     "install testPackage1 -OutputDirectory {0} -Source {1}", outputDirectory, source);
                 var r = CommandRunner.Run(
                     nugetexe,
-                    Directory.GetCurrentDirectory(),
+                    workingPath,
                     args,
                     waitForExit: true);
 
@@ -1543,7 +1543,7 @@ namespace NuGet.CommandLine.Test
                 }
                 var r = CommandRunner.Run(
                     nugetexe,
-                    Directory.GetCurrentDirectory(),
+                    source,
                     cmd,
                     waitForExit: true);
 
