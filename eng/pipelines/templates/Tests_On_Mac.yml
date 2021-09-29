@@ -1,4 +1,15 @@
 steps:
+- task: PowerShell@1
+  displayName: "Download Config Files"
+  enabled: "false"
+  inputs:
+    scriptType: "inlineScript"
+    inlineScript: |
+      $url = $(VstsConfigFileRootUrl) -f 'NuGet.Core.FuncTests.Config'
+      Invoke-RestMethod -Method Get -Uri $url -UseDefaultCredentials -OutFile $(Build.Repository.LocalPath)\\NuGet.Core.FuncTests.Config
+      $url = $(VstsConfigFileRootUrl) -f 'NuGet.Protocol.FuncTest.Config'
+      Invoke-RestMethod -Method Get -Uri $url -UseDefaultCredentials -OutFile $(Build.Repository.LocalPath)\\NuGet.Protocol.FuncTest.Config
+
 - task: DownloadBuildArtifacts@0
   displayName: "Download NuGet.CommandLine.Test artifacts"
   inputs:
