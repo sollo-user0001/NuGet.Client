@@ -1,2 +1,4 @@
+NuGet.Packaging.Core.PackagingException.PackagingException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext) -> void
+override NuGet.Packaging.Core.PackagingException.GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context) -> void
 override NuGet.Packaging.PackageArchiveReader.CopyNupkgAsync(string nupkgFilePath, System.Threading.CancellationToken cancellationToken) -> System.Threading.Tasks.Task<string>
 static NuGet.Packaging.Licenses.NuGetLicenseData.LicenseListVersion.get -> string
