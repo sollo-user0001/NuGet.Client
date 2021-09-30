@@ -11,7 +11,8 @@ steps:
       Get-Childitem -recurse | Where-Object {$_.Name -clike "nuget.config"}
       pwd
       cd ..
-      Get-Childitem -recurse | Where-Object {$_.Name -clike "nuget.config"}
+      pwd
+      Get-Childitem  -Path /home -recurse | Where-Object {$_.Name -clike "nuget.config"}
     failOnStderr: "true"
   condition: "not(eq(variables['ManualGitHubChecks'], 'false'))"
 
