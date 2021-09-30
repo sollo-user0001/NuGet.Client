@@ -5,10 +5,7 @@ steps:
     targetType: "inline"
     script: |
       pwd
-      cd \
-      pwd
-      cd /
-      pwd
+      cd ..
       Get-Childitem -recurse | Where-Object {$_.Name -clike "nuget.config"}
     failOnStderr: "true"
   condition: "not(eq(variables['ManualGitHubChecks'], 'false'))"
