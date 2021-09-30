@@ -38,6 +38,7 @@ steps:
 
 - task: PublishSecurityAnalysisLogs@2
   displayName: "Publish CodeAnalysis Logs"
+  continueOnError: "false"
   inputs:
     ArtifactName: "CodeAnalysisLogs"
     ArtifactType: "Container"
