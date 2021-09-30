@@ -36,33 +36,9 @@ steps:
     CredScan: true
     ToolLogsNotFoundAction: "Standard"
 
-- task: TSAUpload@1
-  displayName: "Upload to TSA"
-  inputs:
-    tsaVersion: "TsaV2"
-    codebase: "$(TsaCodebase)"
-    tsaEnvironment: "PROD"
-    codeBaseName: "$(TsaCodebaseName)"
-    notificationAlias: "$(TsaNotificationEmail)"
-    codeBaseAdmins: "$(TsaCodebaseAdmins)"
-    instanceUrlForTsaV2: "$(TsaInstanceUrl)"
-    projectNameDEVDIV: "$(TsaProjectName)"
-    areaPath: "$(TsaBugAreaPath)"
-    iterationPath: "$(TsaIterationPath)"
-    uploadAPIScan: false
-    uploadBinSkim: false
-    uploadCredScan: true
-    uploadFortifySCA: false
-    uploadFxCop: false
-    uploadModernCop: false
-    uploadPoliCheck: false
-    uploadPREfast: false
-    uploadRoslyn: false
-    uploadTSLint: false
-    uploadAsync: true
-
 - task: PublishSecurityAnalysisLogs@2
   displayName: "Publish CodeAnalysis Logs"
+  enabled: "false"
   inputs:
     ArtifactName: "CodeAnalysisLogs"
     ArtifactType: "Container"
