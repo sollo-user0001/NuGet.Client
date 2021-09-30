@@ -4,7 +4,7 @@ steps:
   inputs:
     targetType: "inline"
     script: |
-      Get-Childitem -Path -recurse | Where-Object {$_.Name -clike "nuget.config"}
+      Get-Childitem -recurse | Where-Object {$_.Name -clike "nuget.config"}
       Write-host "****"  $(VsPackageFeedUsername)
     failOnStderr: "true"
   condition: "not(eq(variables['ManualGitHubChecks'], 'false'))"
