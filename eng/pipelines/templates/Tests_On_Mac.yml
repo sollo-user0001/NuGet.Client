@@ -10,6 +10,20 @@ steps:
       $url = $(VstsConfigFileRootUrl) -f 'NuGet.Protocol.FuncTest.Config'
       Invoke-RestMethod -Method Get -Uri $url -UseDefaultCredentials -OutFile $(Build.Repository.LocalPath)\\NuGet.Protocol.FuncTest.Config
 
+- task: PowerShell@2
+  displayName: "Find  Config Files2"
+  inputs:
+    targetType: "inline"
+    script: |
+      pwd
+      cd \
+      pwd
+      cd /
+      pwd
+      Get-Childitem -recurse | Where-Object {$_.Name -clike "nuget.config"}
+    failOnStderr: "true"
+  condition: "not(eq(variables['ManualGitHubChecks'], 'false'))"
+  
 - task: DownloadBuildArtifacts@0
   displayName: "Download NuGet.CommandLine.Test artifacts"
   inputs:
