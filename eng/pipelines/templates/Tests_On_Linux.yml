@@ -3,9 +3,11 @@ steps:
   displayName: "Find  Config Files"
   inputs:
     targetType: "inline"
-    inlineScript: |
-      Get-Childitem -Path $(Build.Repository.LocalPath) -recurse | Where-Object {$_.Name -clike "nuget.config"}
-      Write-host $(VsPackageFeedUsername)
+    script: |
+      Get-Childitem -Path -recurse | Where-Object {$_.Name -clike "nuget.config"}
+      Write-host "****"  $(VsPackageFeedUsername)
+    failOnStderr: "true"
+  condition: "not(eq(variables['ManualGitHubChecks'], 'false'))"
 
 - task: ShellScript@2
   displayName: "Run Tests (continue on error)"
